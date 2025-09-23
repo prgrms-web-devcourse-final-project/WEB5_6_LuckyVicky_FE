@@ -71,10 +71,10 @@ export default function Header() {
         </h1>
 
         {/* 검색창 */}
-        <form className="relative flex-1 max-w-[400px]">
+        <form className="relative flex-1 max-w-[840px] mr-[175px]">
             <input 
                 type="text"
-                className="w-full border border-primary rounded-full py-2 pl-4 pr-10 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-emerald-800"
+                className="w-full border border-primary rounded-2xl py-2 pl-4 pr-10 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-emerald-800"
             />
             <button 
                 type="submit"
