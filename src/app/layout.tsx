@@ -1,7 +1,19 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import Header from "@/components/Header";
+import type { Metadata } from 'next';
+import localFont from 'next/font/local';
+import './globals.css';
+import Header from '@/components/Header';
 
+const suit = localFont({
+  src: [
+    {
+      path: './fonts/SUIT-Variable.woff2',
+      weight: '100 900',
+      style: 'normal',
+    },
+  ],
+  variable: '--font-suit',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: "모리모리",
@@ -31,12 +43,15 @@ export const metadata: Metadata = {
     description: '당신의 일상에 숲이 되어 줄 수 있는 문구 큐레이션 플랫폼',
     images: ["https://img.com/og-image.png"],
   }
+
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
+
+
 }>) {
 
 
@@ -53,3 +68,4 @@ export default function RootLayout({
     </html>
   );
 }
+
