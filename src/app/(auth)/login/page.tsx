@@ -55,7 +55,7 @@ export default function LoginCard() {
                   비밀번호 찾기
                 </a>
                 <a
-                  href="/signup"
+                  href="/register"
                   className="underline-offset-2 hover:underline"
                 >
                   아직 모리모리 회원이 아니신가요?
