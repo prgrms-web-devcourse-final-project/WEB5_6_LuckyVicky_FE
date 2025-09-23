@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
+import Header from '@/components/Header';
 
 const suit = localFont({
   src: [
@@ -24,8 +25,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko" className={suit.variable}>
-      <body>{children}</body>
+    <html lang="ko-KR">
+      <body className={suit.variable}>
+        <div className="flex flex-col h-screen">
+          <Header />
+          <main className="flex-1">
+              {children}
+          </main>
+        </div>
+      </body>
     </html>
   );
 }
+
