@@ -56,12 +56,10 @@ function Funding() {
               <Image src={rightArrow} alt={'right_arrow_button'} />
             </button>
           </div>
-          <div className="bg-gray-200 h-[1px] w-[60%] my-[40px]"></div>
+          <div className="bg-gray-200 h-[1px] w-[100%] max-w-[1400px] my-[40px]"></div>
           <div className="w-full max-w-[calc(250px+4*200px+6*36px)] ml-[24px]">
-            <select name="정렬" id="sort" className="">
-              <option value="인기순" selected>
-                인기순
-              </option>
+            <select name="정렬" id="sort" className="" defaultValue={'인기순'}>
+              <option value="인기순">인기순</option>
               <option value="최신순">최신순</option>
               <option value="리뷰 많은순">리뷰 많은순</option>
               <option value="별점 높은순">별점 높은순</option>
