@@ -23,14 +23,14 @@ export default function CategoryNav() {
   const pathname = usePathname();
   return (
     <nav className="border-t border-b border-slate-200">
-      <ul className="mx-auto max-w-[1200px] flex gap-6 px-5 py-3 text-[14px]">
+      <ul className="mx-auto max-w-[1200px] flex gap-6 px-5 py-3 text-[14px] font-semibold">
         {/* 카테고리 */}
         {categoryItems.map(item => (
           <li key={item.slug}>
             <Link
               href={`/category/${item.slug}`}
-              className={`hover:text-emerald-700 ${
-                pathname === `/category/${item.slug}` ? 'text-emerald-700 font-bold border-b-2 border-emerald-700' : 'text-slate-700'
+              className={`hover:text-primary ${
+                pathname === `/category/${item.slug}` ? 'text-primary font-bold border-b-2 border-primary' : 'text-gray-600'
               }`}
             >
               {item.label}
@@ -45,8 +45,8 @@ export default function CategoryNav() {
           <li key={item.href}>
             <Link
               href={item.href}
-              className={`hover:text-amber-900 ${
-                pathname === item.href ? 'text-amber-900 font-bold' : 'text-amber-900'
+              className={`hover:text-tertiary ${
+                pathname === item.href ? 'text-tertiary font-bold' : 'text-tertiary'
               }`}
             >
               {item.label}

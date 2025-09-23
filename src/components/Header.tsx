@@ -56,7 +56,7 @@ export default function Header() {
 
   return (
     <>
-    <header className="bg-amber-50 py-[20px] px-[125px] text-slate-600 flex items-center justify-between">
+    <header className="bg-[#F6F4EB] py-[20px] px-[125px] text-gray-600 flex items-center justify-between">
         {/* 로고 */}
         <h1>
             <Link href="/">
@@ -74,7 +74,7 @@ export default function Header() {
         <form className="relative flex-1 max-w-[400px]">
             <input 
                 type="text"
-                className="w-full border border-emerald-700 rounded-full py-2 pl-4 pr-10 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-800"
+                className="w-full border border-primary rounded-full py-2 pl-4 pr-10 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-emerald-800"
             />
             <button 
                 type="submit"
@@ -108,14 +108,14 @@ export default function Header() {
                             <Link
                             key={href}
                             href={href}
-                            className={pathname === href ? "text-emerald-700" : "hover:text-emerald-700"}
+                            className={pathname === href ? "text-primary" : "hover:text-primary"}
                             >
                                 {label}
                             </Link>
                             
                             {
                                 index < authItems.length - 1 && (
-                                    <span className="text-slate-700">/</span>
+                                    <span className="text-gray-600">/</span>
                                 )
                             }
                         </React.Fragment>
@@ -129,7 +129,7 @@ export default function Header() {
                             <Link 
                             href={href}
                             className={`flex items-center gap-1.5
-                                ${pathname === href ? "text-emerald-700" : "hover:text-emerald-700"}`}
+                                ${pathname === href ? "text-primary" : "hover:text-primary"}`}
                             >
                                 <MenuIcon href={href} />
                                 {label}
