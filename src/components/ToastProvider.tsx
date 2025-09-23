@@ -53,7 +53,7 @@ export default function ToastProvider({
   // Avoid SSR "document is not defined" by portaling only after mount
   // and rendering portal contents through a small helper component below.
   const [items, setItems] = useState<ToastItem[]>([]);
-  const timers = useRef<Record<string, any>>({});
+  const timers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   const api: Ctx = useMemo(
     () => ({

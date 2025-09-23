@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { TERMS_CONTENT, type ModalContent } from './terms';
+import { TERMS_CONTENT } from './terms';
 import Modal from '@/components/Modal';
 import SignupButton from '@/components/register/SignUpButton';
 import CheckboxTrue from '../../../../public/icons/checkbox_true.svg';
