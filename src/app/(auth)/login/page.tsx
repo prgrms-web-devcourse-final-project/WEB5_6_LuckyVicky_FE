@@ -1,4 +1,5 @@
 ﻿'use client';
+import Button from '@/components/Button';
 import Image from 'next/image';
 
 const socialButtonClass =
@@ -43,12 +44,9 @@ export default function LoginCard() {
                   required
                 />
               </label>
-              <button
-                className="w-full rounded-lg bg-[var(--color-primary)] px-4 py-2 font-semibold text-white transition-opacity duration-150 hover:opacity-90"
-                type="submit"
-              >
-                로그인
-              </button>
+
+              <Button className="w-full">로그인</Button>
+
               <div className="mt-2 flex flex-col gap-[16px] justify-center text-center text-sm text-gray-600">
                 <a
                   href="/password"
