@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { TERMS_CONTENT } from './terms';
+import { isValidEmail } from '@/utils/validators';
+
 import Modal from '@/components/Modal';
 import SignupButton from '@/components/register/SignupButton';
 import CheckboxTrue from '@/assets/icon/checkbox_true.svg';
@@ -39,7 +41,16 @@ function Page() {
   );
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
 
+  const [email, setEmail] = useState('');
+  const [emailErr, setEmailErr] = useState<string | null>(null);
+
   const allChecked = AGREEMENT_ITEMS.every(({ id }) => agreements[id]);
+
+  const onEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.value ?? "";
+    setEmail(v);
+    setEmailErr(v.length === 0 ? null : isValidEmail(v) ? null : '올바른 이메일 형식이 아닙니다.');
+  };
 
   const handleToggleAll = () => {
     const next = !allChecked;
@@ -72,12 +83,10 @@ function Page() {
       <h1 className="mb-6 text-center text-[32px] font-bold">회원가입</h1>
 
       <div className="max-w-[463px] flex flex-col items-center justify-center mx-auto gap-[20px]">
-        <input
-          type="email"
-          className="w-full mx-auto rounded border border-gray-200 px-3 py-2 outline-none transition-colors duration-150 focus:border-[var(--color-primary)]"
-          placeholder="이메일"
-          required
-        />
+        <input type="email" className="w-full mx-auto rounded border border-gray-200 px-3 py-2 outline-none transition-colors duration-150 focus:border-[var(--color-primary)]" placeholder="이메일" value={email} onChange={onEmailChange} required />
+
+        {emailErr && <p className="text-[12px] text-[var(--color-danger)]">{emailErr}</p>}
+
         <input
           type="password"
           className="w-full mx-auto rounded border border-gray-200 px-3 py-2 outline-none transition-colors duration-150 focus:border-[var(--color-primary)]"
@@ -170,7 +179,7 @@ function Page() {
             ))}
           </div>
         </div>
-        <SignupButton />
+        <SignupButton disabled={!!emailErr || !!isValidEmail(email)} />
       </div>
 
       {activeModal && TERMS_CONTENT[activeModal] ? (
