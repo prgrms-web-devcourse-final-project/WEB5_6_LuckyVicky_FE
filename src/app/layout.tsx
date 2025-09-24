@@ -1,53 +1,65 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import Header from "@/components/Header";
+import type { Metadata } from 'next';
+import localFont from 'next/font/local';
+import './globals.css';
+import Header from '@/components/Header';
+import ToastProvider from '@/components/ToastProvider';
 
+const suit = localFont({
+  src: [
+    {
+      path: './fonts/SUIT-Variable.woff2',
+      weight: '100 900',
+      style: 'normal',
+    },
+  ],
+  variable: '--font-suit',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
-  title: "모리모리",
-  description: "당신의 일상에 숲이 되어 줄 수 있는 문구 큐레이션 플랫폼",
+  title: '모리모리',
+  description: '당신의 일상에 숲이 되어 줄 수 있는 문구 큐레이션 플랫폼',
   icons: {
-    icon: "/favicon.svg",
+    icon: '/favicon.svg',
   },
 
-  openGraph:{
+  openGraph: {
     title: '모리모리',
-    description: "펀딩, 스티커, 메모지, 노트, 작가숲까지 다양한 문구류를 만나보세요",
+    description:
+      '펀딩, 스티커, 메모지, 노트, 작가숲까지 다양한 문구류를 만나보세요',
     url: 'https://kindtiger.com',
     type: 'website',
     siteName: '모리모리',
-    images:[
+    images: [
       {
-        url:'https://img.com/og-image.png',
-        width:1200,
-        height:600,
-        alt:'모리모리 사이트 이미지'
-      }
+        url: 'https://img.com/og-image.png',
+        width: 1200,
+        height: 600,
+        alt: '모리모리 사이트 이미지',
+      },
     ],
-    locale:'ko_KR'
+    locale: 'ko_KR',
   },
-  twitter:{
-    title:'모리모리',
+  twitter: {
+    title: '모리모리',
     description: '당신의 일상에 숲이 되어 줄 수 있는 문구 큐레이션 플랫폼',
-    images: ["https://img.com/og-image.png"],
-  }
+    images: ['https://img.com/og-image.png'],
+  },
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
-
-
+}) {
   return (
     <html lang="ko-KR">
-      <body className={`antialiased`}>
+      <body className={suit.variable}>
         <div className="flex flex-col h-screen">
           <Header />
-          <main className="flex-1">
-              {children}
-          </main>
+          <ToastProvider>
+            <main className="flex-1">{children}</main>
+          </ToastProvider>
         </div>
       </body>
     </html>
