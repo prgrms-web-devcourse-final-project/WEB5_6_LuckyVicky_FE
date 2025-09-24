@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { TERMS_CONTENT } from './terms';
-import { isValidEmail } from '@/utils/validators';
+import { isValidEmail, isValidPassword } from '@/utils/validators';
 
 import Modal from '@/components/Modal';
 import SignupButton from '@/components/register/SignupButton';
@@ -44,6 +44,12 @@ function Page() {
   const [email, setEmail] = useState('');
   const [emailErr, setEmailErr] = useState<string | null>(null);
 
+  const [password, setPassword] = useState('');
+  const [passwordErr, setPasswordErr] = useState<string | null>(null);
+
+  const [passwordConfirm, setPasswordConfirm] = useState('');
+  const [passwordConfirmErr, setPasswordConfirmErr] = useState<string | null>(null);
+
   const allChecked = AGREEMENT_ITEMS.every(({ id }) => agreements[id]);
 
   const onEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,6 +57,18 @@ function Page() {
     setEmail(v);
     setEmailErr(v.length === 0 ? null : isValidEmail(v) ? null : '올바른 이메일 형식이 아닙니다.');
   };
+
+  const onPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.value ?? "";
+    setPassword(v);
+    setPasswordErr(v.length === 0 ? null : isValidPassword(v) ? null : '비밀번호는 영문 대소문자, 숫자, 특수문자 포함 8자 이상이어야 합니다.');
+  }
+
+  const onPasswordConfirmChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.value ?? "";
+    setPasswordConfirm(v);
+    setPasswordConfirmErr(v.length === 0 ? null : v === password ? null : '비밀번호가 일치하지 않습니다.');
+  }
 
   const handleToggleAll = () => {
     const next = !allChecked;
@@ -91,14 +109,24 @@ function Page() {
           type="password"
           className="w-full mx-auto rounded border border-gray-200 px-3 py-2 outline-none transition-colors duration-150 focus:border-[var(--color-primary)]"
           placeholder="비밀번호"
+          value={password}
+          onChange={onPasswordChange}
           required
         />
+
+        {passwordErr && <p className="text-[12px] text-[var(--color-danger)]">{passwordErr}</p>}
+
         <input
           type="password"
           className="w-full mx-auto rounded border border-gray-200 px-3 py-2 outline-none transition-colors duration-150 focus:border-[var(--color-primary)]"
           placeholder="비밀번호 확인"
+          value={passwordConfirm}
+          onChange={onPasswordConfirmChange}
           required
         />
+
+        {passwordConfirmErr && <p className="text-[12px] text-[var(--color-danger)]">{passwordConfirmErr}</p>}
+        
         <input
           className="w-full mx-auto rounded border border-gray-200 px-3 py-2 outline-none transition-colors duration-150 focus:border-[var(--color-primary)]"
           placeholder="닉네임"
@@ -193,4 +221,5 @@ function Page() {
     </div>
   );
 }
+
 export default Page;

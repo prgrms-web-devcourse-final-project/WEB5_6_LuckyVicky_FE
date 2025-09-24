@@ -12,3 +12,12 @@ export function isValidEmail(v: string) {
     !s.includes('.@');
   return basic && extra;
 }
+
+export function isValidPassword(v: string) {
+  if (!v) return false;
+  const s = v.trim();
+  // 8-20자, 영문 대소문자, 숫자, 특수문자 포함
+  const re =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};':"\\|,.<>/?`~\-=/])[A-Za-z\d!@#$%^&*()_+[\]{};':"\\|,.<>/?`~\-=/]{8,20}$/;
+  return re.test(s);
+}
