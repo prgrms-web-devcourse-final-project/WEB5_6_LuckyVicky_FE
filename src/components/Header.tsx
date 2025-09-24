@@ -58,7 +58,7 @@ export default function Header() {
     <>
     <header className="bg-[#F6F4EB] py-[20px] px-[125px] text-gray-600 flex items-center justify-between">
         {/* 로고 */}
-        <h1>
+        <h1 className="shrink-0">
             <Link href="/">
                 <Image 
                     src="/logo.svg"
@@ -71,7 +71,7 @@ export default function Header() {
         </h1>
 
         {/* 검색창 */}
-        <form className="relative flex-1 max-w-[840px] mr-[175px]">
+        <form className="relative flex-1 min-w-[200px] max-w-[840px] mr-4 lg:mr-[175px]">
             <input 
                 type="text"
                 className="w-full border border-primary rounded-2xl py-2 pl-4 pr-10 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-emerald-800"
@@ -93,7 +93,7 @@ export default function Header() {
         <nav>
             <h2 className="sr-only">메인 메뉴</h2>
 
-            <ul className="flex gap-5 text-[12px]">
+            <ul className="flex flex-wrap gap-5 text-[12px]">
                 <li className="flex items-center gap-1.5">
                     <Image 
                         src="/icons/login.svg"

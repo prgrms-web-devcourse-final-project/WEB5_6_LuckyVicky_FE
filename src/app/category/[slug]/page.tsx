@@ -1,6 +1,9 @@
 
 import { notFound } from "next/navigation";
 import { categoryData, CategorySlug } from "@/utils/categoryData";
+import ProductCard from "@/components/ProductCard";
+import CategoryBtn from "@/components/mainCategory/CategoryBtn";
+import ProductFilter from "@/components/mainCategory/ProductFilter";
 
 // SSG: 존재하는 slug만 미리 생성
 export async function generateStaticParams() {
@@ -25,6 +28,20 @@ export default async function CategoryPage({ params }: Props) {
   if (!category) return notFound();
 
   return (
-    <div></div>
+    <main className="mx-auto max-w-[1200px] px-5 ">
+      {category.subCategories && (
+        <CategoryBtn items={category.subCategories} />
+      )}
+      <h2 className="my-6 text-3xl font-semibold">{category.name}</h2>
+
+      <ul className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
+        {category.products.map((item) => (
+          <li key={item.id}>
+            <ProductCard {...item} />
+          </li>
+        ))}
+      </ul>
+      <ProductFilter />
+    </main>
   );
 }

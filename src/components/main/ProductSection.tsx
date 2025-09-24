@@ -1,4 +1,5 @@
-import ProductCard from "./ProductCard";
+import { mainData } from "@/utils/categoryData";
+import ProductCard from "../ProductCard";
 
 export default function ProductSection() {
   return (
@@ -8,12 +9,13 @@ export default function ProductSection() {
             <span className="text-[16px] text-gray-400">주제 설명입니다. 주제 설명입니다. 주제 설명입니다.</span>
         </div>
 
-        <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-4">
-            <ProductCard />
-            <ProductCard />
-            <ProductCard />
-            <ProductCard />
-        </div>
+        <ul className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
+        {mainData.map((item) => (
+          <li key={item.id}>
+            <ProductCard {...item} />
+          </li>
+        ))}
+      </ul>
     </section>
   )
 }

@@ -22,7 +22,7 @@ const forestItems = [
 export default function CategoryNav() {
   const pathname = usePathname();
   return (
-    <nav className="border-t border-b border-slate-200">
+    <nav className="border-t border-b border-slate-200 bg-white">
       <ul className="mx-auto max-w-[1200px] flex gap-6 px-5 py-3 text-[14px] font-semibold">
         {/* 카테고리 */}
         {categoryItems.map(item => (
