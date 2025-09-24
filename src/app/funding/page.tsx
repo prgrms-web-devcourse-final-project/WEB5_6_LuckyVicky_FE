@@ -1,6 +1,6 @@
 import FundingCard from '@/components/funding/FundingCard';
-import leftArrow from '@/assets/icon/leftArrow.svg';
-import rightArrow from '@/assets/icon/rightArrow.svg';
+import LeftArrow from '@/assets/icon/leftArrow.svg';
+import RightArrow from '@/assets/icon/rightArrow.svg';
 import Image from 'next/image';
 
 function Funding() {
@@ -43,7 +43,7 @@ function Funding() {
           </p>
           <div className="w-full max-w-[calc(250px+4*200px+6*36px)] ml-[24px] relative">
             <button className="absolute left-[-40px] top-1/2 transform -translate-y-1/2">
-              <Image src={leftArrow} alt={'left_arrow_button'} />
+              <LeftArrow />
             </button>
             <div className="flex gap-6">
               {/* 데이터 불러온 뒤 map으로 뿌리기 */}
@@ -53,7 +53,7 @@ function Funding() {
               <FundingCard />
             </div>
             <button className="absolute right-[-40px] top-1/2 transform -translate-y-1/2">
-              <Image src={rightArrow} alt={'right_arrow_button'} />
+              <RightArrow />
             </button>
           </div>
           <div className="bg-gray-200 h-[1px] w-[100%] max-w-[1400px] my-[40px]"></div>
