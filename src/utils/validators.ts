@@ -21,3 +21,12 @@ export function isValidPassword(v: string) {
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};':"\\|,.<>/?`~\-=/])[A-Za-z\d!@#$%^&*()_+[\]{};':"\\|,.<>/?`~\-=/]{8,20}$/;
   return re.test(s);
 }
+
+export function onlyDigits(v: string) {
+return (v ?? '').replace(/\D/g, '');
+}
+
+export function isValidPhoneKRParts(p1: string, p2: string, p3: string) {
+// 기본 정책: 010-####-#### 만 허용
+return p1 === '010' && /^\d{4}$/.test(p2) && /^\d{4}$/.test(p3);
+}
