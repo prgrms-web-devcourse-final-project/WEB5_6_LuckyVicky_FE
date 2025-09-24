@@ -3,9 +3,9 @@
 import { useState } from 'react';
 import { TERMS_CONTENT } from './terms';
 import Modal from '@/components/Modal';
-import SignupButton from '@/components/register/SignUpButton';
-import CheckboxTrue from '../../../../public/icons/checkbox_true.svg';
-import CheckboxFalse from '../../../../public/icons/checkbox_false.svg';
+import SignupButton from '@/components/register/SignupButton';
+import CheckboxTrue from '@/assets/icon/checkbox_true.svg';
+import CheckboxFalse from '@/assets/icon/checkbox_false.svg';
 
 const AGREEMENT_ITEMS = [
   { id: 'age', label: '본인은 만 14세 이상입니다.' },
