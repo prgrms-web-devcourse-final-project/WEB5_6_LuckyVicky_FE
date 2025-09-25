@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { categoryData, CategorySlug } from "@/utils/categoryData";
 import ProductCard from "@/components/ProductCard";
 import CategoryBtn from "@/components/mainCategory/CategoryBtn";
-import ProductFilter from "@/components/mainCategory/ProductFilter";
 import FilteredSection from "@/components/mainCategory/FilteredSection";
 import CategorySideBar from "@/components/CategorySideBar";
 
