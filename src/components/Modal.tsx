@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import X from '@/assets/icon/x.svg';
 
 type ModalProps = {
   title?: string;
@@ -18,13 +19,13 @@ export default function Modal({
   showFooter = true,
 }: ModalProps) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6">
-      <div className="relative flex max-h-[90vh] w-full max-w-[420px] flex-col rounded-2xl border border-[var(--color-primary)] bg-white shadow-[8px_8px_0_0_var(--color-primary-40)]">
-        {(title || onClose) && (
-          <header className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-            <h2 className="text-xl font-semibold text-[var(--color-primary)]">{title}</h2>
-            <button type="button" className="text-gray-400" onClick={onClose} aria-label="닫기">
-              ×
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-12 py-12">
+      <div className="relative flex max-h-[90vh] w-full max-w-[420px] flex-col rounded-2xl bg-white ">
+        {title  && (
+          <header className="flex items-center justify-between px-6 py-6">
+            <h2 className="text-xl font-semibold text-[var(--color-black)]">{title}</h2>
+            <button type="button" className="text-gray-400 inline-flex items-center justify-center"  onClick={onClose} aria-label="닫기">
+              <X className="size-6"/>
             </button>
           </header>
         )}
@@ -32,10 +33,10 @@ export default function Modal({
           {children}
         </div>
         {showFooter && (
-          <footer className="border-t border-gray-200 px-6 py-4">
+          <footer className="flex justify-center px-6 py-4">
             <button
               type="button"
-              className="w-full rounded-lg bg-[var(--color-primary)] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-primary-60)]"
+              className="w-[150px] rounded-[6px] bg-[var(--color-primary)] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-primary-60)]"
               onClick={onClose}
             >
               {confirmText}
