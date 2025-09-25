@@ -418,7 +418,7 @@ const ProductPage = () => {
                             </div>
                           </div>
 
-                          <p className="text-gray-700 mb-4 leading-relaxed">
+                          <p className="text-gray-700 mb-4 leading-relaxed break-words overflow-wrap-anywhere whitespace-pre-wrap">
                             {displayContent}
                           </p>
 
