@@ -9,7 +9,7 @@ import {
   useEffect,
 } from 'react';
 import { createPortal } from 'react-dom';
-import SuccessIcon from '../../public/icons/success.svg';
+import SuccessIcon from '@/assets/icon/success.svg';
 
 type ToastVariant = 'success' | 'error' | 'info';
 type ToastAction = { label: string; onClick: () => void };
