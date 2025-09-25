@@ -31,7 +31,7 @@ export function DataTable<T>({
               <th
                 key={String(c.key)}
                 className={[
-                    "px-4 py-3 border-b border-[var(--color-gray-100)]",
+                    "px-4 py-3 border-b border-[var(--color-gray-100)] font-medium",
                     c.width ?? "",
                     c.align === "center" ? "text-center" : "",
                     c.align === "right" ? "text-right" : "",
@@ -46,7 +46,7 @@ export function DataTable<T>({
         <tbody>
           {rows.length === 0 && (
             <tr className="border-b border-b-[var(--color-gray-200)]">
-              <td className="px-4 py-8  text-center text-[var(--color-gray-600)]" colSpan={columns.length}>
+              <td className="pl-0 px-4 py-8  text-center text-[var(--color-gray-600)]" colSpan={columns.length}>
                 {emptyText}
               </td>
             </tr>

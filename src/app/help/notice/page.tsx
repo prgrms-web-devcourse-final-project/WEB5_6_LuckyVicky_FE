@@ -20,7 +20,7 @@ const noticeCols: Column<Notice>[] = [
     render: (r) => (
       <div className="flex items-center gap-2">
         <span className="truncate font-medium">{r.title}</span>
-        {r.important && <span className="text-red-500 font-semibold">중요</span>}
+        {r.important && <span className="text-red-500 font-extrabold">중요</span>}
       </div>
     ),
   },
