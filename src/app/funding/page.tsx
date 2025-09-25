@@ -1,3 +1,5 @@
+'use client';
+
 import FundingCard from '@/components/funding/FundingCard';
 import LeftArrow from '@/assets/icon/leftArrow.svg';
 import RightArrow from '@/assets/icon/rightArrow.svg';
