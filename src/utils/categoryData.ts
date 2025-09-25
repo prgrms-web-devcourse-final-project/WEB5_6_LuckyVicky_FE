@@ -8,6 +8,7 @@ export type Product = {
   price: string;
   originalPrice: string;
   rating: string;
+  createdAt:string;
 };
 
 // 버튼 카테고리 타입
@@ -37,6 +38,7 @@ export const categoryData: Record<string, Category> = {
         price: "8,000",
         originalPrice: "10,000",
         rating: "4.7",
+        createdAt: "2025-09-24",
       },
       {
         id: "funding-2",
@@ -47,6 +49,7 @@ export const categoryData: Record<string, Category> = {
         price: "18,000",
         originalPrice: "20,000",
         rating: "4.5",
+        createdAt: "2025-09-23",
       },
     ],
   },
@@ -69,6 +72,7 @@ export const categoryData: Record<string, Category> = {
         price: "8,000",
         originalPrice: "10,000",
         rating: "4.7",
+        createdAt: "2025-09-24",
       },
       {
         id: "sticker-2",
@@ -79,6 +83,7 @@ export const categoryData: Record<string, Category> = {
         price: "18,000",
         originalPrice: "20,000",
         rating: "4.5",
+        createdAt: "2025-09-23",
       },
     ],
   },
@@ -99,6 +104,7 @@ export const categoryData: Record<string, Category> = {
         price: "8,000",
         originalPrice: "10,000",
         rating: "4.7",
+        createdAt: "2025-09-24",
       },
       {
         id: "memo-2",
@@ -109,6 +115,7 @@ export const categoryData: Record<string, Category> = {
         price: "18,000",
         originalPrice: "20,000",
         rating: "4.5",
+        createdAt: "2025-09-23",
       },
     ],
   },
@@ -130,6 +137,7 @@ export const categoryData: Record<string, Category> = {
         price: "8,000",
         originalPrice: "10,000",
         rating: "4.7",
+        createdAt: "2025-09-24",
       },
       {
         id: "note-2",
@@ -140,6 +148,7 @@ export const categoryData: Record<string, Category> = {
         price: "18,000",
         originalPrice: "20,000",
         rating: "4.5",
+        createdAt: "2025-09-23",
       },
     ],
   },
@@ -156,6 +165,7 @@ export const categoryData: Record<string, Category> = {
         price: "8,000",
         originalPrice: "10,000",
         rating: "4.7",
+        createdAt: "2025-09-24",
       },
       {
         id: "acc-2",
@@ -166,6 +176,7 @@ export const categoryData: Record<string, Category> = {
         price: "18,000",
         originalPrice: "20,000",
         rating: "4.5",
+        createdAt: "2025-09-23",
       },
     ],
   },
@@ -182,6 +193,7 @@ export const categoryData: Record<string, Category> = {
         price: "8,000",
         originalPrice: "10,000",
         rating: "4.7",
+        createdAt: "2025-09-24",
       },
       {
         id: "etc-2",
@@ -192,6 +204,7 @@ export const categoryData: Record<string, Category> = {
         price: "18,000",
         originalPrice: "20,000",
         rating: "4.5",
+        createdAt: "2025-09-23",
       },
     ],
   },
@@ -208,6 +221,7 @@ export const categoryData: Record<string, Category> = {
         price: "8,000",
         originalPrice: "10,000",
         rating: "4.7",
+        createdAt: "2025-09-24",
       },
       {
         id: "digital-2",
@@ -218,6 +232,7 @@ export const categoryData: Record<string, Category> = {
         price: "18,000",
         originalPrice: "20,000",
         rating: "4.5",
+        createdAt: "2025-09-23",
       },
     ],
   },
@@ -237,6 +252,7 @@ export const mainData: Product[] = [
     price: "8,000",
     originalPrice: "10,000",
     rating: "4.7",
+    createdAt: "2025-09-24",
   },
   {
     id: "p2",
@@ -247,6 +263,7 @@ export const mainData: Product[] = [
     price: "17,000",
     originalPrice: "20,000",
     rating: "4.5",
+    createdAt: "2025-09-23",
   },
   {
     id: "p3",
@@ -257,6 +274,7 @@ export const mainData: Product[] = [
     price: "7,000",
     originalPrice: "10,000",
     rating: "4.8",
+    createdAt: "2025-09-22",
   },
   {
     id: "p4",
@@ -267,5 +285,6 @@ export const mainData: Product[] = [
     price: "27,000",
     originalPrice: "30,000",
     rating: "4.3",
+    createdAt: "2025-09-21",
   },
 ];

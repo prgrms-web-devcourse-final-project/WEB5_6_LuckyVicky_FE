@@ -4,7 +4,7 @@ type Item = { id: string; label: string };
 
 export default function CategoryBtn({ items = []}: { items?: Item[] }) {
   return (
-     <div className="flex flex-wrap justify-center gap-3 py-4">
+     <div className="flex flex-wrap justify-center gap-3 pt-10">
       {items.map((it) => (
         <button
           key={it.id}
