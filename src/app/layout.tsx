@@ -3,6 +3,7 @@ import localFont from 'next/font/local';
 import './globals.css';
 import Header from '@/components/Header';
 import ToastProvider from '@/components/ToastProvider';
+import ScrollTopBtn from '@/components/ScrollTopBtn';
 
 const suit = localFont({
   src: [
@@ -59,7 +60,8 @@ export default function RootLayout({
           <Header />
           <ToastProvider>
             <main className="flex-1">{children}</main>
-          </ToastProvider>
+            <ScrollTopBtn />
+          </ToastProvider> 
         </div>
       </body>
     </html>
