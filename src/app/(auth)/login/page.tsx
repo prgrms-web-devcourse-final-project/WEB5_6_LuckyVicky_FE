@@ -1,6 +1,7 @@
 ﻿'use client';
 import Button from '@/components/Button';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useState } from 'react';
 
 const socialButtonClass =
@@ -60,19 +61,20 @@ export default function LoginCard() {
 
               <Button className="w-full">로그인</Button>
 
-              <div className="mt-2 flex flex-col gap-[16px] justify-center text-center text-sm text-gray-600">
-                <a
+              <div className="mt-2 flex gap-[16px] justify-center text-center text-sm text-gray-600">
+                <Link
                   href="/password"
-                  className="underline-offset-2 hover:underline"
+                  className="underline-offset-2 hover:underline after:content-['|'] after:pl-4 after:text-[var(--color-gray-200)]"
                 >
                   비밀번호 찾기
-                </a>
-                <a
-                  href="/register"
-                  className="underline-offset-2 hover:underline"
-                >
-                  아직 모리모리 회원이 아니신가요?
-                </a>
+                </Link>
+
+                
+                <Link href="/register" className="underline-offset-2 hover:underline ">
+                  회원가입
+                </Link>
+              
+               
           
               </div>
             </form>

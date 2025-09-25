@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, use } from 'react';
+import { useState, useRef } from 'react';
 import { TERMS_CONTENT } from './terms';
 import { isValidEmail, isValidPassword , onlyDigits, isValidPhoneKRParts} from '@/utils/validators';
 
@@ -49,6 +49,7 @@ function Page() {
     setEmail(v);
     setEmailErr(v.length === 0 ? null : isValidEmail(v) ? null : '올바른 이메일 형식이 아닙니다.');
   };
+ 
 
   // 비밀번호
   const [password, setPassword] = useState('');
@@ -126,6 +127,31 @@ function Page() {
     lastRef.current?.focus();
   };
 
+  const [nickname, setNickname] = useState('');
+  const [nicknameVerified, setNicknameVerified] = useState(false);
+
+  // 나중에 중복확인 로직 붙인 뒤 true로 변경
+  const requireNickname = false;
+
+  const onChangeNickname = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNickname(e.target.value ?? '');
+    setNicknameVerified(false);
+  };
+
+  // 닉네임 중복확인 더미 핸들러 : 추후 API 연동 필요
+  const handleCheckNickname = async () => {
+    if(!nickname.trim()) return;
+    // 중복확인 APi 호출 후 결과에 따라 setNicknameVerified(true/false)
+    setNicknameVerified(true);
+  }
+
+   const isEmailOk = isValidEmail(email);
+   const isPwOk = password.length > 0 && passwordConfirm.length > 0 && password === passwordConfirm;
+   const isPhoneOk = isValidPhoneKRParts(p1, p2, p3);
+   const isNicknameOk = nickname.trim().length > 0 && nicknameVerified;
+
+  const canSubmit = isEmailOk && isPwOk && isPhoneOk && isNicknameOk;
+
   const allChecked = AGREEMENT_ITEMS.every(({ id }) => agreements[id]);
 
   const handleToggleAll = () => {
@@ -170,9 +196,6 @@ function Page() {
 
 {emailErr && <p className="text-[12px] text-[var(--color-danger)]">{emailErr}</p>}
 
-
-        {emailErr && <p className="text-[12px] text-[var(--color-danger)]">{emailErr}</p>}
-
         <input
           type="password"
           className="w-full mx-auto rounded border border-gray-200 px-3 py-2 outline-none transition-colors duration-150 focus:border-[var(--color-primary)]"
@@ -195,11 +218,25 @@ function Page() {
 
         {passwordConfirmErr && <p className="text-[12px] text-[var(--color-danger)]">{passwordConfirmErr}</p>}
         
-        <input
-          className="w-full mx-auto rounded border border-gray-200 px-3 py-2 outline-none transition-colors duration-150 focus:border-[var(--color-primary)]"
-          placeholder="닉네임"
-          required
-        />
+     
+        <div className="w-full flex gap-2">
+          <input
+            className="flex-1 rounded border border-gray-200 px-3 py-2 outline-none transition-colors duration-150 focus:border-[var(--color-primary)]"
+            placeholder="닉네임"
+            value={nickname}
+            onChange={onChangeNickname}
+          />
+          <button
+            type="button"
+            onClick={handleCheckNickname}
+            disabled={!nickname.trim() || nicknameVerified}
+            className="rounded border border-[var(--color-primary)] bg-[var(--color-primary-20)] px-3 py-2 text-sm disabled:opacity-50"
+          >
+            {nicknameVerified ? '확인완료' : '중복확인'}
+          </button>
+        </div>
+
+
         <div className="w-full mx-auto flex flex-row gap-[30px] text-center">
         <input
           ref={firstRef}
@@ -290,7 +327,7 @@ function Page() {
             ))}
           </div>
         </div>
-        <SignupButton disabled={!!emailErr || !!isValidEmail(email) || !!phoneErr || !isValidPhoneKRParts(p1, p2, p3)} />
+        <SignupButton canSubmit={canSubmit} />
       </div>
 
       {activeModal && TERMS_CONTENT[activeModal] ? (
