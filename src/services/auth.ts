@@ -57,9 +57,11 @@ export async function login(payload: LoginPayload): Promise<LoginResponse> {
     body: JSON.stringify(payload),
   });
 
-  const data: LoginResponse = await res.json().catch(() => ({} as LoginResponse));
+  const data: LoginResponse & { message?: string } = await res
+    .json()
+    .catch(() => ({} as LoginResponse & { message?: string }));
   if (!res.ok) {
-    throw new Error((data && (data.msg || (data as any).message)) ?? '로그인 실패');
+    throw new Error((data && (data.msg || data.message)) ?? '로그인 실패');
   }
   return data;
 }

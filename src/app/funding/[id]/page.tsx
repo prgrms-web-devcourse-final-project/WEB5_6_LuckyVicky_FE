@@ -17,7 +17,6 @@ interface Review {
 
 const ProductPage = () => {
   const [selectedTab, setSelectedTab] = useState('description');
-  const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
 
   const productImages = [

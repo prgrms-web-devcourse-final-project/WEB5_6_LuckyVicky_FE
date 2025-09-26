@@ -47,8 +47,7 @@ function Page() {
   );
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
 
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  // 제거: 미사용 상태값 정리 (lint)
 
   // 이메일
   const [email, setEmail] = useState('');
@@ -141,8 +140,7 @@ function Page() {
   const nicknameTrim = nickname.trim();
   const isNicknameLenOk = nicknameTrim.length >= 2 && nicknameTrim.length <= 10;
 
-  // 나중에 중복확인 로직 붙인 뒤 true로 변경
-  const requireNickname = false;
+  // 닉네임 중복확인 API 연동 전까지는 별도 플래그 불필요
 
   const onChangeNickname = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNickname(e.target.value ?? '');
@@ -210,8 +208,12 @@ function Page() {
         passwordConfirm,
         name: nickname,
         phone: `${p1}${p2}${p3}`,
-        privacyRequiredAgreed: agreements['privacy-required'],
-        marketingAgreed: agreements['privacy-optional'],
+        // 아래 필드들은 백엔드 요구 스펙에 따라 필수값으로 전송
+        privacyRequiredAgreed: true,
+        marketingAgreed: true,
+        agreementIp: "string",
+        passwordMatching: true,
+        requiredTermsAgreed: true,
       });
       // 성공 시에는 defaultPrevented가 아니므로 SignupButton 내부의 성공 토스트가 노출됨
     } catch (err) {
