@@ -2,6 +2,7 @@
 import type { Column } from "@/components/table/DataTable";
 import { DataTable } from "@/components/table/DataTable";
 import Button from "@/components/Button";
+import Link from "next/link";
 
 type Notice = {
   no: string;
@@ -41,17 +42,19 @@ export default function NoticeListPage() {
     <>
       <div className="mt-[94px] mb-4 flex items-center justify-between">
         <h3 className="text-2xl font-bold">공지사항</h3>
-        <Button variant="primary" size="sm">
-          공지사항 작성
-        </Button>
+        <Link href="/help/notice/new">
+          <Button variant="primary" size="sm">
+            공지사항 작성
+          </Button>
+        </Link>
       </div>
 
       <DataTable
         columns={noticeCols}
         rows={rows}
         rowKey={(r) => r.no}
-        rowClassName={(r) => (r.important ? "bg-[var(--color-danger-10)]" : "")}
-        onRowClick={(r) => location.assign(`/help/notices/${r.no}`)}
+        rowClassName={(r) => (r.important ? "bg-[var(--color-danger-10)] hover:bg-[var(--color-danger-20)]" : "")}
+        onRowClick={(r) => location.assign(`/help/notice/${r.no}`)}
       />
 
       <nav className="mt-6 flex items-center justify-center gap-4 text-sm text-[var(--color-gray-700)]">
