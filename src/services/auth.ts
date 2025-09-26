@@ -22,13 +22,12 @@ export async function signup(payload: SignUpPayload) {
   const data = await res.json().catch(() => ({}));
 
   if (!res.ok) {
-    // 백엔드에서 message 또는 msg 키로 보낼 수 있어 둘 다 대응
     throw new Error((data && (data.message || data.msg)) ?? "회원가입 실패");
   }
   return data;
 }
 
-// Login
+// 로그인
 export type LoginPayload = {
   email: string;
   password: string;
@@ -65,3 +64,35 @@ export async function login(payload: LoginPayload): Promise<LoginResponse> {
   }
   return data;
 }
+
+// 중복확인
+export type DuplicateResponse = {
+  resultCode?: string;
+  msg?: string;
+  data?: {
+    value: string;
+    fieldType: 'email' | 'phone' | 'name' | string;
+    isDuplicate: boolean;
+    message?: string;
+    isAvailable: boolean;
+  };
+};
+
+async function postDuplicate(path: 'email' | 'phone' | 'name', value: string): Promise<DuplicateResponse> {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/duplicate/${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ value }),
+  });
+  const data: DuplicateResponse = await res.json().catch(() => ({} as DuplicateResponse));
+  if (!res.ok) {
+    const message = data.msg || (data as unknown as { message?: string }).message || '중복 확인 실패';
+    throw new Error(message);
+  }
+  return data;
+}
+
+export const checkDuplicateEmail = (email: string) => postDuplicate('email', email);
+export const checkDuplicatePhone = (phone: string) => postDuplicate('phone', phone); // 숫자만
+export const checkDuplicateName  = (name: string)  => postDuplicate('name', name);
