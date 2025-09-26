@@ -1,50 +1,53 @@
 'use client'
 
+import Shop from "@/assets/icon/shop.svg";
+import Mypage from "@/assets/icon/mypage.svg";
+import News from "@/assets/icon/news.svg";
+import Search from "@/assets/icon/search.svg";
+import Login from "@/assets/icon/login.svg";
+
 import { navItems } from "@/utils/navigation";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import CategoryNav from "./CategoryNav";
+import Notification from "./Notification";
 
 
 function MenuIcon({href}:{href:string}) {
     switch(href){
         case "/shop":
             return (
-                <Image 
-                    src="/icons/shop.svg"
-                    alt="장바구니 아이콘"
-                    width={13}
-                    height={13}
-                    />
+                <Shop />
             );
         case "/mypage":
             return (
-                <Image 
-                    src="/icons/mypage.svg"
-                    alt="마이페이지 아이콘"
-                    width={13}
-                    height={13}
-                    />
+                <Mypage />
             );
         case "/news":
             return (
-                <Image 
-                    src="/icons/news.svg"
-                    alt="알림 아이콘"
-                    width={13}
-                    height={13}
-                    />
+                <News />
             );
         default:
             return null;
     }
 }
 
+const isNotificationItem = (item: { href: string; label: string }) =>
+    item.href === "/news";
+
 export default function Header() {
 
     const pathname = usePathname();
+    const [notifOpen, setNotifOpen] = useState(false);
+
+    // 알림창 열리면 외부 스크롤 막기
+    useEffect(() => {
+        if(notifOpen) document.body.classList.add('overflow-hidden');
+        else document.body.classList.remove('overflow-hidden');
+        return () => document.body.classList.remove('overflow-hidden');
+    },[notifOpen]);
 
     const authItems = navItems.filter(
         (item) => item.href === '/login' || item.href === '/register'
@@ -54,11 +57,11 @@ export default function Header() {
         (item) => item.href !== '/login' && item.href !== '/register'
     );
 
-  return (
+    return (
     <>
     <header className="bg-[#F6F4EB] py-[20px] px-[125px] text-gray-600 flex items-center justify-between">
         {/* 로고 */}
-        <h1>
+        <h1 className="shrink-0">
             <Link href="/">
                 <Image 
                     src="/logo.svg"
@@ -71,21 +74,16 @@ export default function Header() {
         </h1>
 
         {/* 검색창 */}
-        <form className="relative flex-1 max-w-[400px]">
+        <form className="relative flex-1 min-w-[200px] max-w-[840px] mr-4 lg:mr-[175px]">
             <input 
                 type="text"
-                className="w-full border border-primary rounded-full py-2 pl-4 pr-10 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-emerald-800"
+                className="w-full border border-primary rounded-2xl py-2 pl-4 pr-10 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-emerald-800"
             />
             <button 
                 type="submit"
                 className="absolute right-3 top-1/2 -translate-y-1/2"
                 >
-                    <Image 
-                    src="/icons/search.svg"
-                    alt="검색 아이콘"
-                    width={18}
-                    height={18}
-                    />
+                    <Search />
             </button>
         </form>
 
@@ -93,14 +91,9 @@ export default function Header() {
         <nav>
             <h2 className="sr-only">메인 메뉴</h2>
 
-            <ul className="flex gap-5 text-[12px]">
+            <ul className="flex flex-wrap gap-5">
                 <li className="flex items-center gap-1.5">
-                    <Image 
-                        src="/icons/login.svg"
-                        alt="로그인 아이콘"
-                        width={13}
-                        height={13}
-                    />
+                    <Login />
                 {/* 로그인/회원가입 */}    
                 {
                     authItems.map(({href,label},index) => (
@@ -123,24 +116,48 @@ export default function Header() {
                 }
                 </li>
                 {/* 나머지 */}
-                {
-                    otherItems.map(({href,label}) => (
-                        <li key={href}>
-                            <Link 
-                            href={href}
-                            className={`flex items-center gap-1.5
-                                ${pathname === href ? "text-primary" : "hover:text-primary"}`}
-                            >
-                                <MenuIcon href={href} />
-                                {label}
-                            </Link>
-                        </li>
-                    ))
+                {otherItems.map((item) => {
+                    const { href, label } = item;
+
+                // 알림아이콘은 버튼으로
+                if (isNotificationItem(item)) {
+                    return (
+                    <li key={href}>
+                        <button
+                        type="button"
+                        onClick={() => setNotifOpen(true)}
+                        className="flex items-center gap-1.5 hover:text-primary cursor-pointer"
+                        >
+                        <MenuIcon href={href} />
+                        {label}
+                        </button>
+                    </li>
+                    );
                 }
-            </ul>
-        </nav>
-    </header>
-    <CategoryNav />
+
+                // 알림아이콘 제외 나머지는 라우팅
+                return (
+                    <li key={href}>
+                        <Link
+                            href={href}
+                            className={`flex items-center gap-1.5 ${
+                            pathname === href ? "text-primary" : "hover:text-primary"
+                            }`}
+                        >
+                        <MenuIcon href={href} />
+                            {label}
+                        </Link>
+                    </li>
+                    );
+                })}
+                </ul>
+            </nav>
+        </header>
+
+        <CategoryNav />
+
+        {/* 알림 창 */}
+        <Notification open={notifOpen} onClose={() => setNotifOpen(false)} />        
     </>
-  )
+);
 }
