@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { useToast } from '@/components/ToastProvider';
+import { signup } from '@/services/auth';
 import { TERMS_CONTENT } from './terms';
 import { isValidEmail, isValidPassword , onlyDigits, isValidPhoneKRParts} from '@/utils/validators';
 
@@ -8,6 +10,8 @@ import Modal from '@/components/Modal';
 import SignupButton from '@/components/register/SignupButton';
 import CheckboxTrue from '@/assets/icon/checkbox_true.svg';
 import CheckboxFalse from '@/assets/icon/checkbox_false.svg';
+
+
 
 const AGREEMENT_ITEMS = [
   { id: 'age', label: '본인은 만 14세 이상입니다.' },
@@ -29,6 +33,8 @@ type AgreementId = (typeof AGREEMENT_ITEMS)[number]['id'];
 type ActiveModal = AgreementId | null;
 
 function Page() {
+  const toast = useToast();
+  const [submitting, setSubmitting] = useState(false);
   const [agreements, setAgreements] = useState<Record<AgreementId, boolean>>(
     () =>
       AGREEMENT_ITEMS.reduce(
@@ -40,6 +46,8 @@ function Page() {
       ),
   );
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
+
+  // 제거: 미사용 상태값 정리 (lint)
 
   // 이메일
   const [email, setEmail] = useState('');
@@ -129,9 +137,10 @@ function Page() {
 
   const [nickname, setNickname] = useState('');
   const [nicknameVerified, setNicknameVerified] = useState(false);
+  const nicknameTrim = nickname.trim();
+  const isNicknameLenOk = nicknameTrim.length >= 2 && nicknameTrim.length <= 10;
 
-  // 나중에 중복확인 로직 붙인 뒤 true로 변경
-  const requireNickname = false;
+  // 닉네임 중복확인 API 연동 전까지는 별도 플래그 불필요
 
   const onChangeNickname = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNickname(e.target.value ?? '');
@@ -140,17 +149,21 @@ function Page() {
 
   // 닉네임 중복확인 더미 핸들러 : 추후 API 연동 필요
   const handleCheckNickname = async () => {
-    if(!nickname.trim()) return;
-    // 중복확인 APi 호출 후 결과에 따라 setNicknameVerified(true/false)
+    if (!isNicknameLenOk) {
+      toast.error('닉네임은 2자 이상 10자 이하여야 합니다.');
+      return;
+    }
+    // TODO: 중복확인 API 연동. 성공 시 아래 true로 설정
     setNicknameVerified(true);
+    toast.success('사용 가능한 닉네임입니다.');
   }
 
    const isEmailOk = isValidEmail(email);
    const isPwOk = password.length > 0 && passwordConfirm.length > 0 && password === passwordConfirm;
    const isPhoneOk = isValidPhoneKRParts(p1, p2, p3);
-   const isNicknameOk = nickname.trim().length > 0 && nicknameVerified;
+   const isNicknameOk = isNicknameLenOk && nicknameVerified;
 
-  const canSubmit = isEmailOk && isPwOk && isPhoneOk && isNicknameOk;
+  const canSubmit = isEmailOk && isPwOk && isPhoneOk && isNicknameOk && agreements['privacy-required'];
 
   const allChecked = AGREEMENT_ITEMS.every(({ id }) => agreements[id]);
 
@@ -178,6 +191,38 @@ function Page() {
 
   const handleCloseModal = () => {
     setActiveModal(null);
+  };
+
+  // 회원가입 제출
+  const handleSignupClick: React.MouseEventHandler<HTMLButtonElement> = async (e) => {
+    // 버튼 내부의 기본 성공 토스트를 막기 위해 실패 시 e.preventDefault() 사용
+    if (!canSubmit || submitting) {
+      e.preventDefault();
+      return;
+    }
+    try {
+      setSubmitting(true);
+      await signup({
+        email,
+        password,
+        passwordConfirm,
+        name: nickname,
+        phone: `${p1}${p2}${p3}`,
+        // 아래 필드들은 백엔드 요구 스펙에 따라 필수값으로 전송
+        privacyRequiredAgreed: true,
+        marketingAgreed: true,
+        agreementIp: "string",
+        passwordMatching: true,
+        requiredTermsAgreed: true,
+      });
+      // 성공 시에는 defaultPrevented가 아니므로 SignupButton 내부의 성공 토스트가 노출됨
+    } catch (err) {
+      e.preventDefault();
+      const message = err instanceof Error ? err.message : '회원가입 실패';
+      toast.error(message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -235,6 +280,10 @@ function Page() {
             {nicknameVerified ? '확인완료' : '중복확인'}
           </button>
         </div>
+
+        {!isNicknameLenOk && nicknameTrim.length > 0 && (
+          <p className="text-[12px] text-[var(--color-danger)]">닉네임은 2자 이상 10자 이하여야 합니다.</p>
+        )}
 
 
         <div className="w-full mx-auto flex flex-row gap-[30px] text-center">
@@ -327,7 +376,12 @@ function Page() {
             ))}
           </div>
         </div>
-        <SignupButton canSubmit={canSubmit} />
+        <SignupButton
+          canSubmit={canSubmit && !submitting}
+          onClick={handleSignupClick}
+          aria-busy={submitting}
+          className={submitting ? 'opacity-60 cursor-wait' : ''}
+        />
       </div>
 
       {activeModal && TERMS_CONTENT[activeModal] ? (

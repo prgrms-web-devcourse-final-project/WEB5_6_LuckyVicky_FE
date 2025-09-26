@@ -3,12 +3,20 @@ import Button from '@/components/Button';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+import { useToast } from '@/components/ToastProvider';
+import { useRouter } from 'next/navigation';
+import { login } from '@/services/auth';
 
 const socialButtonClass =
   'flex w-full items-center justify-center gap-2 rounded-lg border border-gray-200 px-4 py-2 transition-colors duration-150 hover:border-[var(--color-primary)]';
 
 export default function LoginCard() {
   const [selected, setSelected] = useState<'normal' | 'artist'>('normal');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const toast = useToast();
+  const router = useRouter();
 
   const baseTab =
     'lg:w-[180px] md:w-[180px] rounded-t-xl px-5 py-3 text-[16px] font-semibold transition-colors duration-150 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]';
@@ -41,12 +49,34 @@ export default function LoginCard() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
           <div className="space-y-3">
             <h2 className="text-center text-lg">이메일 로그인</h2>
-            <form className="space-y-3" onSubmit={(e) => e.preventDefault()}>
+            <form
+              className="space-y-3"
+              onSubmit={async (e) => {
+                e.preventDefault();
+                if (!email || !password || submitting) return;
+                try {
+                  setSubmitting(true);
+                  const selectedRole = selected === 'normal' ? 'USER' : 'ARTIST';
+                  await login({ email, password, selectedRole });
+                  toast.success('로그인되었습니다!', {
+                    duration: 2000,
+                  });
+                  router.push('/');
+                } catch (err) {
+                  const msg = err instanceof Error ? err.message : '로그인 실패';
+                  toast.error(msg);
+                } finally {
+                  setSubmitting(false);
+                }
+              }}
+            >
               <label className="block">
                 <input
                   type="email"
                   className="w-full rounded border border-gray-200 px-3 py-2 outline-none transition-colors duration-150 focus:border-[var(--color-primary)]"
                   placeholder="이메일(아이디)"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </label>
@@ -55,11 +85,15 @@ export default function LoginCard() {
                   type="password"
                   className="w-full rounded border border-gray-200 px-3 py-2 outline-none transition-colors duration-150 focus:border-[var(--color-primary)]"
                   placeholder="비밀번호"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
                 />
               </label>
 
-              <Button className="w-full">로그인</Button>
+              <Button className="w-full" disabled={submitting}>
+                {submitting ? '로그인 중…' : '로그인'}
+              </Button>
 
               <div className="mt-2 flex gap-[16px] justify-center text-center text-sm text-gray-600">
                 <Link
