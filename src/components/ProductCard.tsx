@@ -23,8 +23,9 @@ export default function ProductCard({
             <Image 
                 src={img}
                 alt={title}
-                width={277}
-                height={277}
+                width={230}
+                height={230}
+                className="w-[280px] h-[280px] object-cover"
             />
         </div>
 

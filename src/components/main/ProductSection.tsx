@@ -1,5 +1,6 @@
 import { mainData } from "@/utils/categoryData";
 import ProductCard from "../ProductCard";
+import Link from "next/link";
 
 export default function ProductSection() {
   return (
@@ -14,7 +15,9 @@ export default function ProductSection() {
         <ul className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
           {mainData.map((item) => (
             <li key={item.id}>
-              <ProductCard {...item} />
+              <Link href={`/product/${item.id}`}>
+                <ProductCard {...item} />
+              </Link>
             </li>
           ))}
         </ul>

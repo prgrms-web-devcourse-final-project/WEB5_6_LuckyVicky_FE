@@ -5,6 +5,7 @@ import ProductCard from "@/components/ProductCard";
 import CategoryBtn from "@/components/mainCategory/CategoryBtn";
 import FilteredSection from "@/components/mainCategory/FilteredSection";
 import CategorySideBar from "@/components/CategorySideBar";
+import Link from "next/link";
 
 // SSG: 존재하는 slug만 미리 생성
 export async function generateStaticParams() {
@@ -48,7 +49,9 @@ export default async function CategoryPage({ params }: Props) {
 
         {category.products.map((item) => (
           <li key={item.id}>
-            <ProductCard {...item} />
+            <Link href={`/product/${item.id}`}>
+              <ProductCard {...item} />
+            </Link>
           </li>
         ))}
       </ul>
