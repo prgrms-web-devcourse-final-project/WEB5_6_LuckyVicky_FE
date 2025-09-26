@@ -312,7 +312,6 @@ function Page() {
         passwordConfirm,
         name: nickname,
         phone: `${p1}${p2}${p3}`,
-        // 아래 필드들은 백엔드 요구 스펙에 따라 필수값으로 전송
         privacyRequiredAgreed: true,
         marketingAgreed: true,
         agreementIp: 'string',
