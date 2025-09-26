@@ -27,7 +27,7 @@ const noticeCols: Column<Notice>[] = [
   },
   { key: "author", header: "작성자", width: "w-28" },
   { key: "date", header: "작성일", width: "w-28" },
-  { key: "views", header: "조회수", width: "w-20", align: "right" },
+  { key: "views", header: "조회수", width: "w-20", align: "center" },
 ];
 
 export default function NoticeListPage() {
