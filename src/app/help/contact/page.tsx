@@ -2,18 +2,25 @@
 import type { Column } from "@/components/table/DataTable";
 import { DataTable } from "@/components/table/DataTable";
 import Button from "@/components/Button";
+import Link from "next/link";
 
 type Question = {
   no: string;
-  category: string;
+  category: "입고/재입고" | "배송" | "작가 입점" | "품질/불량" | "기타";
   title: string;
   author: string;
   date: string;
   views: number;
 };
 
-const noticeCols: Column<Question>[] = [
+const questionCols: Column<Question>[] = [
   { key: "no", header: "글번호", width: "w-24" },
+  {
+    key: "category",
+    header: "카테고리",
+    width: "w-28",
+    render: (r) => r.category
+  },
   {
     key: "title",
     header: "제목",
@@ -22,7 +29,9 @@ const noticeCols: Column<Question>[] = [
         <span className="truncate font-medium">{r.title}</span>
       </div>
     ),
+  
   },
+   
   { key: "author", header: "작성자", width: "w-28" },
   { key: "date", header: "작성일", width: "w-28" },
   { key: "views", header: "조회수", width: "w-20", align: "center"},
@@ -42,16 +51,18 @@ export default function QuestionListPage() {
     <>
       <div className="mt-[94px] mb-4 flex items-center justify-between">
         <h3 className="text-2xl font-bold">문의하기</h3>
-        <Button variant="primary" size="sm">
-          문의글 작성
-        </Button>
+        <Link href="/help/contact/new">
+          <Button variant="primary" size="sm">
+            문의글 작성
+          </Button>
+        </Link>
       </div>
 
       <DataTable
-        columns={noticeCols}
+        columns={questionCols}
         rows={rows}
         rowKey={(r) => r.no}
-        onRowClick={(r) => location.assign(`/help/notices/${r.no}`)}
+        onRowClick={(r) => location.assign(`/help/contact/${r.no}`)}
       />
 
       <nav className="mt-6 flex items-center justify-center gap-4 text-sm text-[var(--color-gray-700)]">

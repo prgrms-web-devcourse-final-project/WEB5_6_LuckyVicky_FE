@@ -72,7 +72,7 @@ export default function NoticeEditor({
   if (!editor) return null;
 
   return (
-    <div className="rounded border border-[var(--color-gray-200)]">
+    <div className="rounded overflow-hidden border border-[var(--color-gray-200)]">
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-1 border-b border-[var(--color-gray-200)] bg-[var(--color-gray-10)] px-2 py-1">
         <Btn on={() => editor.commands.undo()}>
