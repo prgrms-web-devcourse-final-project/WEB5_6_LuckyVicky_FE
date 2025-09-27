@@ -132,7 +132,7 @@ export default function ProductOptions() {
           <span>총 상품 금액</span>
           <span className="text-danger font-semibold">{totalPrice.toLocaleString()}원</span>
         </div>
-        <div className="flex items-center justify-center gap-4">
+        <div className="flex justify-center gap-4">
           <button className="border border-primary rounded-sm px-5 py-3.5 hover:bg-primary-20 transition">장바구니</button>
           <button className="border border-primary rounded-sm px-5 py-3.5 hover:bg-primary-20 transition">바로구매</button>
           <button className="border border-primary rounded-sm px-5 py-3.5 hover:bg-primary-20 transition"><Heart /></button>

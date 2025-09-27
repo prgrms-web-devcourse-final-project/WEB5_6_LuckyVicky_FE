@@ -5,7 +5,7 @@ import Image from "next/image";
 
 export default function page() {
   return (
-    <>
+    <div className="pb-4">
     <main className="max-w-[1200px] mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-2 gap-10">
       <section>
         <Image 
@@ -13,7 +13,7 @@ export default function page() {
           alt="상품 이미지"
           width={500}
           height={550}
-          className="w-[500px] h-[550px] object-cover"
+          className="w-[500px] h-[550px]"
         />
       </section>
 
@@ -59,6 +59,6 @@ export default function page() {
       
     </main>
     <InfoTab />
-    </>
+    </div>
   )
 }

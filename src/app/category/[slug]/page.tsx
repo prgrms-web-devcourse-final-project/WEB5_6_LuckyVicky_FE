@@ -37,8 +37,8 @@ export default async function CategoryPage({ params }: Props) {
       <div className="flex">
         <CategorySideBar />
       
-      <div className="max-w-[min(1200px,calc(100vw-250px))] mx-auto">
-      <section className="flex-1 pl-6">
+      <div className="max-w-[min(1200px,calc(100vw-250px))] mx-auto pb-4">
+      <section className="flex-1 pl-6 pt-10">
         {category.subCategories && (
         <CategoryBtn items={category.subCategories} />
       )}

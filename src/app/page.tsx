@@ -13,7 +13,7 @@ export default async function Home() {
   return (
     <>
     <Hero />
-    <div className="px-[125px]">
+    <div className="px-[125px] pb-4">
       <ProductSection />
       <ProductSection />
     </div>

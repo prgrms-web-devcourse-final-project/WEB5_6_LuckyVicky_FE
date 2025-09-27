@@ -1,6 +1,10 @@
 'use client'
 
 import { useState } from "react";
+import ProductInfo from "./ProductInfo";
+import ArtistInfo from "./ArtistInfo";
+import QuestionInfo from "./QnaInfo";
+import ReviewInfo from "./ReviewInfo";
 
 const TABS = ['상품 정보', '작가 정보', '상품 Q&A', '리뷰'];
 
@@ -18,7 +22,7 @@ export default function InfoTab() {
           <button
             key={item}
             onClick={() => setActiveTab(item)}
-            className={`cursor-pointer flex-1 px-24 py-3 font-semibold text-tertiary ${activeTab === item ? 
+            className={`cursor-pointer flex-1 py-3 font-semibold text-tertiary ${activeTab === item ? 
               'text-white bg-tertiary' : ''
             }`}
             >
@@ -28,11 +32,11 @@ export default function InfoTab() {
       </div>
 
       {/* 탭 컨텐츠 */}
-      <div className="flex max-w-[1200px] mx-auto" >
-        {activeTab === "상품 정보" && <div>상품정보</div>}
-        {activeTab === "작가 정보" && <div>작가정보</div>}
-        {activeTab === "상품 Q&A" && <div>상품Q&A</div>}
-        {activeTab === "리뷰" && <div>리뷰</div>}
+      <div className="max-w-[1200px] mx-auto">
+        {activeTab === "상품 정보" && <ProductInfo />}
+        {activeTab === "작가 정보" && <ArtistInfo />}
+        {activeTab === "상품 Q&A" && <QuestionInfo />}
+        {activeTab === "리뷰" && <ReviewInfo />}
       </div>
     </div>
   )

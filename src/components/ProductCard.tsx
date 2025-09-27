@@ -25,7 +25,7 @@ export default function ProductCard({
                 alt={title}
                 width={230}
                 height={230}
-                className="w-[280px] h-[280px] object-cover"
+                className="w-[280px] h-[280px]"
             />
         </div>
 
