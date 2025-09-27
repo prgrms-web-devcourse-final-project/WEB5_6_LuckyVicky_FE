@@ -38,7 +38,7 @@ export default function Page() {
            columns={faqCols}
            rows={rows}
            rowKey={(r) => r.no}
-           onRowClick={(r) => location.assign(`/help/notices/${r.no}`)}
+           onRowClick={(r) => location.assign(`/help/faq/${r.no}`)}
          />
    
          <nav className="mt-6 flex items-center justify-center gap-4 text-sm text-[var(--color-gray-700)]">
