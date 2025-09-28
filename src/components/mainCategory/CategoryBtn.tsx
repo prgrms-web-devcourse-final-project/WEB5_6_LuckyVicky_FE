@@ -8,7 +8,7 @@ export default function CategoryBtn({ items = []}: { items?: Item[] }) {
       {items.map((it) => (
         <button
           key={it.id}
-          className="rounded-[10px] border border-primary bg-white px-5 py-1 transition hover:bg-primary hover:text-white"
+          className="rounded-[10px] border border-primary bg-white px-5 py-1 cursor-pointer transition hover:bg-primary hover:text-white"
         >
           {it.label}
         </button>

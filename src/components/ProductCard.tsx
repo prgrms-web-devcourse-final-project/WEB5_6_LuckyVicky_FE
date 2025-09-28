@@ -41,8 +41,8 @@ export default function ProductCard({
             
 
                 <div className="flex items-center">
-                    <Star width={18} height={18} />
-                    <span className="mx-2  text-[18px]">{rating}</span>
+                    <Star />
+                    <span className="mx-2 text-[18px]">{rating}</span>
                 </div>
             </div>
         </div>

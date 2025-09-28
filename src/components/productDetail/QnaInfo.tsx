@@ -51,7 +51,7 @@ export default function QnaInfo() {
       <h3 className="font-semibold pt-12">상품 Q&A</h3>
       <div className="flex items-center justify-between pt-6">
         <CategoryBtn items={qnaCategories} />
-        <div className="bg-primary rounded-md px-4 py-2.5 text-white font-semibold">Q&A 작성</div>
+        <div className="bg-primary rounded-md px-4 py-2.5 text-white font-semibold border cursor-pointer transition hover:bg-white hover:border-primary hover:text-primary">Q&A 작성</div>
       </div>
 
       <div className="mt-11 px-3 py-2">

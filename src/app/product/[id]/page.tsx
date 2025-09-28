@@ -1,7 +1,9 @@
+'use client'
 
 import InfoTab from "@/components/productDetail/InfoTab";
 import ProductOptions from "@/components/productDetail/ProductOptions";
 import Image from "next/image";
+import Star from "@/assets/icon/star.svg";
 
 export default function page() {
   return (
@@ -23,7 +25,11 @@ export default function page() {
         <div className="flex items-center">
           <h1 className="text-2xl font-bold py-5 pr-4">상품명</h1>
           <div className="flex gap-1 items-center">
-            <span>*****</span>
+            <Star />
+            <Star />
+            <Star />
+            <Star />
+            <Star />
             <span className="font-bold text-[14px] text-gray-600">3.0</span>
             <span className="text-[12px] text-gray-400">(0)</span>
           </div>
@@ -53,10 +59,7 @@ export default function page() {
 
         <ProductOptions />
 
-        
-        
       </section>
-      
     </main>
     <InfoTab />
     </div>

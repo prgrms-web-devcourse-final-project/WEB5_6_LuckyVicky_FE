@@ -26,12 +26,12 @@ export default function ArtistInfo() {
           <div className="relative flex flex-col items-center">
             <div className="my-3.5">
               <button type="button" className="absolute right-0 top-0"><Scrap /></button>
-              <DefaultProfile />
+              <DefaultProfile width={60} height={60} />
             </div>
-            <div className="flex justify-center items-center gap-2 bg-white border border-primary rounded-sm px-3.5 py-2">
-              <button type="button" className="text-primary font-semibold">작가페이지</button>
+            <button type="button"  className="flex justify-center items-center gap-2 bg-white border border-primary rounded-sm px-3.5 py-2 text-primary font-semibold cursor-pointer transition hover:bg-primary-20 hover:text-white">
+              작가페이지
               <RightGreenArrow />
-            </div>
+            </button>
           </div>
         </div>
     </section>

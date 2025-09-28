@@ -73,7 +73,7 @@ export default function ProductOptions() {
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="flex justify-between items-center w-full rounded-md border border-primary bg-white px-3 py-4 text-left transition hover:bg-primary-20"
+          className="flex justify-between items-center w-full rounded-md border border-primary bg-white px-3 py-4 text-left cursor-pointer transition hover:bg-primary-20"
         >
           <span>상품을 선택해주세요</span>
            {open ? <ArrowClose /> : <FilterArrowOpen />}
@@ -119,7 +119,7 @@ export default function ProductOptions() {
                 onClick={() => removeOption(item.id)}
                 className="flex items-center justify-center text-gray-300 cursor-pointer"
               >
-                <X />
+                <X width={16} height={16} />
               </button>
             </div>
           </div>
@@ -133,9 +133,9 @@ export default function ProductOptions() {
           <span className="text-danger font-semibold">{totalPrice.toLocaleString()}원</span>
         </div>
         <div className="flex justify-center gap-4">
-          <button className="border border-primary rounded-sm px-5 py-3.5 hover:bg-primary-20 transition">장바구니</button>
-          <button className="border border-primary rounded-sm px-5 py-3.5 hover:bg-primary-20 transition">바로구매</button>
-          <button className="border border-primary rounded-sm px-5 py-3.5 hover:bg-primary-20 transition"><Heart /></button>
+          <button className="border border-primary rounded-sm px-5 py-3.5 cursor-pointer hover:bg-primary-20 transition">장바구니</button>
+          <button className="border border-primary rounded-sm px-5 py-3.5 cursor-pointer hover:bg-primary-20 transition">바로구매</button>
+          <button className="border border-primary rounded-sm px-5 py-3.5 cursor-pointer hover:bg-primary-20 transition"><Heart /></button>
         </div>
         </div>
     </div>
