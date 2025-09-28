@@ -4,57 +4,65 @@ import { DataTable } from "@/components/table/DataTable";
 import Button from "@/components/Button";
 import Link from "next/link";
 
-type Notice = {
+type Question = {
   no: string;
+  category: "입고/재입고" | "배송" | "작가 입점" | "품질/불량" | "기타";
   title: string;
-  important?: boolean;
   author: string;
   date: string;
   views: number;
 };
 
-const noticeCols: Column<Notice>[] = [
+const questionCols: Column<Question>[] = [
   { key: "no", header: "글번호", width: "w-24" },
+  {
+    key: "category",
+    header: "카테고리",
+    width: "w-28",
+    render: (r) => r.category
+  },
   {
     key: "title",
     header: "제목",
     render: (r) => (
       <div className="flex items-center gap-2">
         <span className="truncate font-medium">{r.title}</span>
-        {r.important && <span className="text-red-500 font-extrabold">중요</span>}
       </div>
     ),
+  
   },
+   
   { key: "author", header: "작성자", width: "w-28" },
   { key: "date", header: "작성일", width: "w-28" },
-  { key: "views", header: "조회수", width: "w-20", align: "center" },
+  { key: "views", header: "조회수", width: "w-20", align: "center"},
 ];
 
-export default function NoticeListPage() {
-  const rows: Notice[] = [
-    { no: "00002", title: "2025 추석연휴 배송공지", important: true, author: "관리자", date: "25.09.16", views: 1 },
-    { no: "00001", title: "작가회원 입점 신청 안내", important: true, author: "관리자", date: "25.09.16", views: 1 },
-    { no: "00003", title: "배송 누락 시 문의글 작성 가이드 안내", important: true, author: "관리자", date: "25.09.16", views: 1 },
-    { no: "76009", title: "2025.09월 신규 입점작가 안내", author: "관리자", date: "25.09.16", views: 1 },
+export default function QuestionListPage() {
+  const rows: Question[] = [
+    { no: "76012", category: "입고/재입고", title: "재입고 언제 되나요?", author: "ㅇㅇㅇ", date: "25.09.16", views: 1 },
+    { no: "76011", category: "배송", title: "택배가 도착을 안해요", author: "ㅇㅇㅇ", date: "25.09.16", views: 1 },
+    { no: "76010", category: "작가 입점", title: "작가회원 승인 언제 되나요?", author: "ㅇㅇㅇ", date: "25.09.16", views: 1 },
+    { no: "76009", category: "배송", title: "상품이 누락됐어요", author: "ㅇㅇㅇ", date: "25.09.16", views: 1 },
+    { no: "76008", category: "품질/불량", title: "키링 고리가 떨어져서 왔어요", author: "ㅇㅇㅇ", date: "25.09.16", views: 1 },
+    
   ];
 
   return (
     <>
       <div className="mt-[94px] mb-4 flex items-center justify-between">
-        <h3 className="text-2xl font-bold">공지사항</h3>
-        <Link href="/help/notice/new">
+        <h3 className="text-2xl font-bold">문의하기</h3>
+        <Link href="/help/contact/new">
           <Button variant="primary" size="sm">
-            공지사항 작성
+            문의글 작성
           </Button>
         </Link>
       </div>
 
       <DataTable
-        columns={noticeCols}
+        columns={questionCols}
         rows={rows}
         rowKey={(r) => r.no}
-        rowClassName={(r) => (r.important ? "bg-[var(--color-danger-10)] hover:bg-[var(--color-danger-20)]" : "")}
-        onRowClick={(r) => location.assign(`/help/notice/${r.no}`)}
+        onRowClick={(r) => location.assign(`/help/contact/${r.no}`)}
       />
 
       <nav className="mt-6 flex items-center justify-center gap-4 text-sm text-[var(--color-gray-700)]">

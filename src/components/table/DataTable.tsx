@@ -54,12 +54,14 @@ export function DataTable<T>({
 
           {rows.map((row, i) => {
             const key = rowKey ? rowKey(row, i) : i;
+            const rcn = rowClassName?.(row, i) ?? "";
+            const hasHover = /(?:^|\s)hover:/.test(rcn);
             return (
               <tr
                 key={key}
                 className={[
-                  "hover:bg-[var(--color-gray-10)]",
-                  rowClassName?.(row, i) ?? "",
+                  hasHover ? "" : "hover:bg-[var(--color-gray-10)]",
+                  rcn,
                   onRowClick ? "cursor-pointer" : "",
                 ].join(" ")}
                 onClick={() => onRowClick?.(row)}
