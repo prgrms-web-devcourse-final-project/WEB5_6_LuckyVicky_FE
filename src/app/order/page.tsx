@@ -3,7 +3,7 @@
 import React from 'react';
 import { useOrderStore } from '@/app/order/stores/orderStore';
 
-const CartPage = () => {
+const Order = () => {
   const { cartItems, updateCartItem, removeCartItem, toggleCartItem } =
     useOrderStore();
 
@@ -268,4 +268,4 @@ const CartPage = () => {
   );
 };
 
-export default CartPage;
+export default Order;
