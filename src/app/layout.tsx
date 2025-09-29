@@ -4,6 +4,7 @@ import './globals.css';
 import Header from '@/components/Header';
 import ToastProvider from '@/components/ToastProvider';
 import ScrollTopBtn from '@/components/ScrollTopBtn';
+import Footer from '@/components/Footer';
 
 const suit = localFont({
   src: [
@@ -61,7 +62,8 @@ export default function RootLayout({
           <ToastProvider>
             <main className="flex-1">{children}</main>
             <ScrollTopBtn />
-          </ToastProvider> 
+          </ToastProvider>
+          <Footer />
         </div>
       </body>
     </html>
