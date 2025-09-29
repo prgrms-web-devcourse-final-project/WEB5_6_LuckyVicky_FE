@@ -47,7 +47,7 @@ export default function AdminDashboardLayout({
           </nav>
         </aside>
 
-        <main className="flex-1 bg-white p-6">{children}</main>
+        <main className="flex-1 bg-white p-20">{children}</main>
       </div>
     </div>
   );
