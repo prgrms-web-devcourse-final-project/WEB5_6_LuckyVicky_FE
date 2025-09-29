@@ -262,7 +262,7 @@ export default function ReviewInfo() {
                   ) : (
                     <div className="flex gap-1">
                       {[1,2,3,4,5].map(n => (
-                        <span>
+                        <span key={n}>
                           {(selectedReview?.rating ?? 0) >= n ? (<Star />) : (<LineStar />)}
                         </span>
                       ))}

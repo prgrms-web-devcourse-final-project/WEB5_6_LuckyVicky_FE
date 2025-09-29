@@ -37,7 +37,7 @@ export default function PhotoReviewCard({
             <span className="mx-2.5 text-sm">사용자명</span>
             <div className="flex gap-1">
               {Array.from({length:5}).map((_,i) => (
-                <button>
+                <button key={i}>
                   {i < rating ? (
                     <Star />
                   ) : (
