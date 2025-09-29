@@ -50,8 +50,8 @@ export default function ToastProvider({
 }: {
   children: React.ReactNode;
 }) {
-  // Avoid SSR "document is not defined" by portaling only after mount
-  // and rendering portal contents through a small helper component below.
+
+  
   const [items, setItems] = useState<ToastItem[]>([]);
   const timers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
