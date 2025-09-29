@@ -1,7 +1,5 @@
 'use client'
 
-
-import Image from "next/image";
 import Star from "@/assets/icon/star.svg";
 import Heart from "@/assets/icon/heart.svg";
 import DefaultProfile from "@/assets/icon/defaultprofile.svg";
