@@ -23,8 +23,9 @@ export default function ProductCard({
             <Image 
                 src={img}
                 alt={title}
-                width={277}
-                height={277}
+                width={230}
+                height={230}
+                className="w-[280px] h-[280px]"
             />
         </div>
 
@@ -40,8 +41,8 @@ export default function ProductCard({
             
 
                 <div className="flex items-center">
-                    <Star width={18} height={18} />
-                    <span className="mx-2  text-[18px]">{rating}</span>
+                    <Star />
+                    <span className="mx-2 text-[18px]">{rating}</span>
                 </div>
             </div>
         </div>

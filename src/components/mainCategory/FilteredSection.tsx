@@ -4,6 +4,7 @@ import { Product } from "@/utils/categoryData"
 import ProductFilter from "./ProductFilter"
 import ProductCard from "../ProductCard"
 import { useMemo, useState } from "react"
+import Link from "next/link"
 
 function toNumberPrice(v: string | number) {
     if (typeof v === 'number') return v;
@@ -36,7 +37,9 @@ export default function FilteredSection({products}:{products: Product[]}) {
         <ul className="grid gap-6 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {sorted.map((item) => (
                 <li key={item.id}>
-                <ProductCard {...item} />
+                <Link href={`/product/${item.id}`}>
+                    <ProductCard {...item} />
+                </Link>
                 </li>
             ))}
         </ul>  

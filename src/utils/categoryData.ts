@@ -32,7 +32,7 @@ export const categoryData: Record<string, Category> = {
       {
         id: "funding-1",
         title: "펀딩 1",
-        img: "/favicon.svg",
+        img: "/productexample1.svg",
         brand: "브랜드A",
         discount: "20%",
         price: "8,000",
@@ -43,7 +43,7 @@ export const categoryData: Record<string, Category> = {
       {
         id: "funding-2",
         title: "펀딩 2",
-        img: "/favicon.svg",
+        img: "/productexample1.svg",
         brand: "브랜드B",
         discount: "10%",
         price: "18,000",
@@ -66,7 +66,7 @@ export const categoryData: Record<string, Category> = {
       {
         id: "sticker-1",
         title: "스티커 상품 1",
-        img: "/favicon.svg",
+        img: "/productexample1.svg",
         brand: "브랜드A",
         discount: "20%",
         price: "8,000",
@@ -77,7 +77,7 @@ export const categoryData: Record<string, Category> = {
       {
         id: "sticker-2",
         title: "스티커 상품 2",
-        img: "/favicon.svg",
+        img: "/productexample1.svg",
         brand: "브랜드B",
         discount: "10%",
         price: "18,000",
@@ -98,7 +98,7 @@ export const categoryData: Record<string, Category> = {
       {
         id: "memo-1",
         title: "메모지 상품 1",
-        img: "/favicon.svg",
+        img: "/productexample1.svg",
         brand: "브랜드A",
         discount: "20%",
         price: "8,000",
@@ -109,7 +109,7 @@ export const categoryData: Record<string, Category> = {
       {
         id: "memo-2",
         title: "메모지 상품 2",
-        img: "/favicon.svg",
+        img: "/productexample1.svg",
         brand: "브랜드B",
         discount: "10%",
         price: "18,000",
@@ -131,7 +131,7 @@ export const categoryData: Record<string, Category> = {
       {
         id: "note-1",
         title: "노트 상품 1",
-        img: "/favicon.svg",
+        img: "/productexample1.svg",
         brand: "브랜드A",
         discount: "20%",
         price: "8,000",
@@ -142,7 +142,7 @@ export const categoryData: Record<string, Category> = {
       {
         id: "note-2",
         title: "노트 상품 2",
-        img: "/favicon.svg",
+        img: "/productexample1.svg",
         brand: "브랜드B",
         discount: "10%",
         price: "18,000",
@@ -159,7 +159,7 @@ export const categoryData: Record<string, Category> = {
       {
         id: "acc-1",
         title: "액세서리 1",
-        img: "/favicon.svg",
+        img: "/productexample1.svg",
         brand: "브랜드A",
         discount: "20%",
         price: "8,000",
@@ -170,7 +170,7 @@ export const categoryData: Record<string, Category> = {
       {
         id: "acc-2",
         title: "액세서리 2",
-        img: "/favicon.svg",
+        img: "/productexample1.svg",
         brand: "브랜드B",
         discount: "10%",
         price: "18,000",
@@ -187,7 +187,7 @@ export const categoryData: Record<string, Category> = {
       {
         id: "etc-1",
         title: "기타 문구 1",
-        img: "/favicon.svg",
+        img: "/productexample1.svg",
         brand: "브랜드A",
         discount: "20%",
         price: "8,000",
@@ -198,7 +198,7 @@ export const categoryData: Record<string, Category> = {
       {
         id: "etc-2",
         title: "기타 문구 2",
-        img: "/favicon.svg",
+        img: "/productexample1.svg",
         brand: "브랜드B",
         discount: "10%",
         price: "18,000",
@@ -215,7 +215,7 @@ export const categoryData: Record<string, Category> = {
       {
         id: "digital-1",
         title: "디지털 문구 1",
-        img: "/favicon.svg",
+        img: "/productexample1.svg",
         brand: "브랜드A",
         discount: "20%",
         price: "8,000",
@@ -226,7 +226,7 @@ export const categoryData: Record<string, Category> = {
       {
         id: "digital-2",
         title: "디지털 문구 2",
-        img: "/favicon.svg",
+        img: "/productexample1.svg",
         brand: "브랜드B",
         discount: "10%",
         price: "18,000",
@@ -245,7 +245,7 @@ export type CategorySlug = keyof typeof categoryData;
 export const mainData: Product[] = [
   {
     id: "p1",
-    img: "/favicon.svg",
+    img: "/productexample1.svg",
     title: "상품 1",
     brand: "브랜드 A",
     discount: "20%",
@@ -256,7 +256,7 @@ export const mainData: Product[] = [
   },
   {
     id: "p2",
-    img: "/favicon.svg",
+    img: "/productexample1.svg",
     title: "상품 2",
     brand: "브랜드 B",
     discount: "15%",
@@ -267,7 +267,7 @@ export const mainData: Product[] = [
   },
   {
     id: "p3",
-    img: "/favicon.svg",
+    img: "/productexample1.svg",
     title: "상품 3",
     brand: "브랜드 C",
     discount: "30%",
@@ -278,7 +278,7 @@ export const mainData: Product[] = [
   },
   {
     id: "p4",
-    img: "/favicon.svg",
+    img: "/productexample1.svg",
     title: "상품 4",
     brand: "브랜드 D",
     discount: "10%",
