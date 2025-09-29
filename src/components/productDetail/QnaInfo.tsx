@@ -67,7 +67,7 @@ export default function QnaInfo() {
       <div className="flex items-center justify-between pt-6">
         <CategoryBtn items={qnaCategories} />
         <button 
-          className="bg-primary rounded-md px-4 py-2.5 text-white font-semibold border cursor-pointer transition hover:bg-white hover:border-primary hover:text-primary"
+          className="bg-primary rounded-lg px-4 py-2.5 text-white font-semibold border cursor-pointer transition hover:bg-white hover:border-primary hover:text-primary"
           onClick={()=>setOpenModal(true)}
           >
           Q&A 작성
@@ -139,7 +139,7 @@ export default function QnaInfo() {
             >
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-bold">Q&A 작성</h2>
-              <button className="cursor-pointer" onClick={() => setOpenModal(false)}><X width={16} height={16} /></button>
+              <button className="cursor-pointer rounded transition hover:bg-black/5 p-2" onClick={() => setOpenModal(false)}><X width={16} height={16} /></button>
             </div>
             <hr />
 
