@@ -5,6 +5,8 @@ export function middleware(req: NextRequest) {
 const { nextUrl, cookies } = req;
 const { pathname, search } = nextUrl;
 
+if (process.env.NODE_ENV === 'development') return NextResponse.next(); // 개발 중 임시로 우회
+
 if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
 
 const token =
