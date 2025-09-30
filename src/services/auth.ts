@@ -31,7 +31,7 @@ export async function signup(payload: SignUpPayload) {
 export type LoginPayload = {
   email: string;
   password: string;
-  selectedRole: 'USER' | 'ARTIST';
+  selectedRole: 'USER' | 'ARTIST' | 'ADMIN';
 };
 
 export type LoginResponse = {
@@ -42,7 +42,7 @@ export type LoginResponse = {
     refreshToken: string;
     userId: number;
     email: string;
-    selectedRole: 'USER' | 'ARTIST';
+    selectedRole: 'USER' | 'ARTIST' | 'ADMIN';
     availableRoles: string[];
     accessTokenExpiresIn: number;
   };
