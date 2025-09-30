@@ -6,25 +6,58 @@ export type SignUpPayload = {
   phone: string; 
   privacyRequiredAgreed: true,
   marketingAgreed: true,
-  agreementIp: "string",
+  agreementIp: string,
   passwordMatching: true,
   requiredTermsAgreed: true
 };
 
-export async function signup(payload: SignUpPayload) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/signup`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify(payload),
-  });
+export async function signup(payload: SignUpPayload): Promise<Record<string, unknown>> {
+  let res: Response;
+  try {
+    res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/signup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(payload),
+    });
+  } catch (error) {
+    throw new Error((error as Error).message || "회원가입 요청에 실패했습니다.");
+  }
 
-  const data = await res.json().catch(() => ({}));
+  let data: unknown = null;
+  const contentType = res.headers.get("content-type");
+  if (contentType && contentType.includes("application/json")) {
+    try {
+      data = await res.json();
+    } catch (error) {
+      // JSON 파싱 실패 시 무시
+    }
+  }
 
   if (!res.ok) {
-    throw new Error((data && (data.message || data.msg)) ?? "회원가입 실패");
+    let fallbackMessage = "회원가입 실패";
+    if (!data) {
+      fallbackMessage = await res.text().catch(() => fallbackMessage) || fallbackMessage;
+    }
+    const errorMessage =
+      (typeof data === "object" && data && "message" in data && typeof (data as { message?: string }).message === "string"
+        ? (data as { message: string }).message.trim()
+        : undefined) ||
+      (typeof data === "object" && data && "msg" in data && typeof (data as { msg?: string }).msg === "string"
+        ? (data as { msg: string }).msg.trim()
+        : undefined) ||
+      fallbackMessage;
+
+    const error = new Error(errorMessage);
+    (error as Error & { status?: number }).status = res.status;
+    throw error;
   }
-  return data;
+
+  if (data === null) {
+    return {};
+  }
+
+  return (data as Record<string, unknown>) ?? {};
 }
 
 // 로그인
