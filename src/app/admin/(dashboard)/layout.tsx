@@ -20,7 +20,7 @@ export default function AdminDashboardLayout({
           >
             <div className="flex items-center gap-2">
               <Login className="block h-5 w-5 " />
-              <span className="leading-none translate-y-0.5">로그인/로그아웃</span>
+              <span className="leading-none translate-y-0.5">로그아웃</span>
             </div>
             
           </Link>

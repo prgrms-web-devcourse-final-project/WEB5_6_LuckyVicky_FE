@@ -162,7 +162,7 @@ export default function AdminDataTable<T>({
                 <th
                   key={key}
                   className={clsx(
-                    "px-4 py-3 text-xs font-medium uppercase tracking-[0.5px] text-[var(--color-gray-600)]",
+                    "px-4 py-3 text-md font-medium uppercase tracking-[0.5px] text-[var(--color-gray-600)]",
                     column.align === "center" && "text-center",
                     column.align === "right" && "text-right",
                   )}
