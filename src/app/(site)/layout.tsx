@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import Header from '@/components/Header';
-
+import Footer from '@/components/Footer';
 
 const suit = localFont({
   src: [
@@ -46,11 +46,16 @@ export const metadata: Metadata = {
   },
 };
 
-export default function SiteLayout({ children }: { children: React.ReactNode }) {
-return (
-<>
-<Header />
-<main className="min-h-screen">{children}</main>
-</>
-);
+export default function SiteLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <>
+      <Header />
+      <main className="min-h-screen">{children}</main>
+      <Footer />
+    </>
+  );
 }

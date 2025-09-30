@@ -110,7 +110,7 @@ const Order = () => {
             type="checkbox"
             checked={item.isChecked}
             onChange={() => toggleCartItem(item.id)}
-            className="w-5 h-5 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500"
+            className="w-5 h-5 text-primary bg-gray-100 border-gray-300 rounded "
           />
         </div>
 
@@ -190,7 +190,7 @@ const Order = () => {
               <input
                 type="checkbox"
                 onChange={() => toggleAllCheck(true)}
-                className="w-5 h-5 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500"
+                className="w-5 h-5 text-primary bg-gray-100 border-gray-300 rounded "
               />
             </div>
             <div className="w-[150px] mr-8"></div>
@@ -218,7 +218,7 @@ const Order = () => {
               <input
                 type="checkbox"
                 onChange={() => toggleAllCheck(false)}
-                className="w-5 h-5 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500"
+                className="w-5 h-5 text-primary bg-gray-100 border-gray-300 rounded"
               />
             </div>
             <div className="w-[150px] mr-8"></div>
@@ -256,10 +256,10 @@ const Order = () => {
 
         {/* 주문 버튼 */}
         <section className="flex justify-center gap-4">
-          <button className="px-8 py-3 border border-green-600 text-green-600 rounded bg-white font-semibold hover:bg-green-50">
+          <button className="px-8 py-3 border border-primary text-primary rounded bg-white font-semibold">
             선택주문(0)
           </button>
-          <button className="px-8 py-3 bg-green-600 text-white rounded font-semibold hover:bg-green-700">
+          <button className="px-8 py-3 bg-primary text-white rounded font-semibold ">
             전체주문
           </button>
         </section>
