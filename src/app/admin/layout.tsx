@@ -1,5 +1,8 @@
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
-return (
-    <div>관리자 로그인</div>
-);
+'use client';
+
+import { ReactNode } from 'react';
+
+export default function AdminLayout({ children }: { children: ReactNode }) {
+return <>{children}</>;
 }
+

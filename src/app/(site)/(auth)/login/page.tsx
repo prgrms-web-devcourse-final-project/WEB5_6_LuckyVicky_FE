@@ -6,9 +6,29 @@ import { useState } from 'react';
 import { useToast } from '@/components/ToastProvider';
 import { useRouter } from 'next/navigation';
 import { login } from '@/services/auth';
+import googleIcon from '@/assets/icon/google.png';
+import NaverIcon from '@/assets/icon/naver.svg';
+import kakaoIcon from '@/assets/icon/kakao.png';
 
 const socialButtonClass =
-  'flex w-full items-center justify-center gap-2 rounded-lg border border-gray-200 px-4 py-2 transition-colors duration-150 hover:border-[var(--color-primary)]';
+  'flex w-full items-center justify-center gap-3 rounded-lg border border-gray-200 px-4 py-2 transition-colors duration-150 hover:border-[var(--color-primary)]';
+const socialIconWrapper = 'flex h-6 w-6 items-center justify-center';
+
+const SOCIAL_LOGIN_URLS = {
+  google: 'http://localhost:8080/oauth2/authorization/google',
+  kakao: 'http://localhost:8080/oauth2/authorization/kakao',
+  naver: 'http://localhost:8080/oauth2/authorization/naver',
+} as const;
+
+type SocialProvider = keyof typeof SOCIAL_LOGIN_URLS;
+
+const SOCIAL_LABELS: Record<SocialProvider, string> = {
+  google: '구글 로그인',
+  naver: '네이버 로그인',
+  kakao: '카카오 로그인',
+};
+
+const SOCIAL_PROVIDER_ORDER: SocialProvider[] = ['google', 'naver', 'kakao'];
 
 export default function LoginCard() {
   const [selected, setSelected] = useState<'normal' | 'artist'>('normal');
@@ -115,33 +135,44 @@ export default function LoginCard() {
           </div>
           <div className="space-y-3">
             <h2 className="text-center text-lg">소셜 로그인</h2>
-            <button className={socialButtonClass}>
-              <Image
-                src="/icons/google.png"
-                alt="Google"
-                width={20}
-                height={20}
-              />
-              <span>구글 로그인</span>
-            </button>
-            <button className={socialButtonClass}>
-              <Image
-                src="/icons/naver.svg"
-                alt="Naver"
-                width={20}
-                height={20}
-              />
-              <span>네이버 로그인</span>
-            </button>
-            <button className={socialButtonClass}>
-              <Image
-                src="/icons/kakao.png"
-                alt="Kakao"
-                width={20}
-                height={20}
-              />
-              <span>카카오 로그인</span>
-            </button>
+            {SOCIAL_PROVIDER_ORDER.map((typedProvider) => {
+              const handleSocialLogin = () => {
+                if (typeof window === 'undefined') return;
+                window.location.href = SOCIAL_LOGIN_URLS[typedProvider];
+              };
+
+              return (
+                <button
+                  key={typedProvider}
+                  type="button"
+                  className={socialButtonClass}
+                  onClick={handleSocialLogin}
+                >
+                  <span className={socialIconWrapper}>
+                    {typedProvider === 'google' && (
+                      <Image
+                        src={googleIcon}
+                        alt="Google"
+                        width={20}
+                        height={20}
+                      />
+                    )}
+                    {typedProvider === 'naver' && (
+                      <NaverIcon className="h-full w-full" aria-hidden />
+                    )}
+                    {typedProvider === 'kakao' && (
+                      <Image
+                        src={kakaoIcon}
+                        alt="Kakao"
+                        width={20}
+                        height={20}
+                      />
+                    )}
+                  </span>
+                  <span>{SOCIAL_LABELS[typedProvider]}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
