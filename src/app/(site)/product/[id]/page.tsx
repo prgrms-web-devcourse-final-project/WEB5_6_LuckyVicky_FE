@@ -36,7 +36,7 @@ export default function page() {
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="text-sm font-bold text-gray-200">10,000원</span>
+          <span className="text-sm font-bold text-gray-200 line-through">10,000원</span>
           <span className="text-2xl font-bold">8,000원</span>
         </div>
 

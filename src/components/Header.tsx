@@ -8,11 +8,12 @@ import Login from "@/assets/icon/login.svg";
 
 import { navItems } from "@/utils/navigation";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import CategoryNav from "./CategoryNav";
 import Notification from "./Notification";
+
 
 
 function MenuIcon({href}:{href:string}) {
@@ -38,9 +39,23 @@ const isNotificationItem = (item: { href: string; label: string }) =>
     item.href === "/news";
 
 export default function Header() {
+    const router = useRouter();
+    const [keyword, setKeyword] = useState('');
 
     const pathname = usePathname();
     const [notifOpen, setNotifOpen] = useState(false);
+
+    // 라우트 바뀔 때마다 검색창 초기화
+    useEffect(() => {
+        setKeyword('');
+    },[pathname])
+
+    const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const q = keyword.trim();
+        if(!q) return;
+        router.push(`/search?q=${encodeURIComponent(q)}`);
+    }
 
     // 알림창 열리면 외부 스크롤 막기
     useEffect(() => {
@@ -74,9 +89,13 @@ export default function Header() {
         </h1>
 
         {/* 검색창 */}
-        <form className="relative flex-1 min-w-[200px] max-w-[840px] mr-4 lg:mr-[175px]">
+        <form 
+        onSubmit={onSubmit}
+        className="relative flex-1 min-w-[200px] max-w-[840px] mr-4 lg:mr-[175px]">
             <input 
-                type="text"
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                placeholder="상품, 작가명으로 검색"
                 className="w-full border border-primary rounded-2xl py-2 pl-4 pr-10 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-emerald-800"
             />
             <button 

@@ -1,0 +1,80 @@
+'use client';
+
+import { useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import ResultHeader from '@/components/ResultHeader';
+import ProductCard from '@/components/ProductCard';
+import { categoryData, Product } from '@/utils/categoryData';
+
+const SORTS = ['인기순', '최신순', '낮은 가격순', '높은 가격순'] as const;
+type Sort = typeof SORTS[number];
+
+export const allProducts:Product[] = Object.values(categoryData).flatMap((category) => category.products);
+
+function toNumberPrice(v: string | number) {
+  if (typeof v === 'number') return v;
+  return Number(String(v).replace(/[^\d.-]/g, '')) || 0;
+}
+
+export default function Page() {
+  const params = useSearchParams();
+  const q = (params.get('q') ?? '').trim();
+
+  const [sort, setSort] = useState<Sort>('인기순');
+
+  const filtered = useMemo(() => {
+    // 검색어: (대소문자 무시)
+    const keyword = q.toLowerCase();
+    const list = allProducts.filter(
+      (item) =>
+        !keyword ||
+        item.title.toLowerCase().includes(keyword) ||
+        item.brand.toLowerCase().includes(keyword)
+    );
+
+    // 정렬: FilteredSection과 동일 로직
+    const copy = [...list];
+    switch (sort) {
+      case '최신순':
+        return copy.sort((a, b) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime());
+      case '낮은 가격순':
+        return copy.sort((a, b) => toNumberPrice(a.price) - toNumberPrice(b.price));
+      case '높은 가격순':
+        return copy.sort((a, b) => toNumberPrice(b.price) - toNumberPrice(a.price));
+      case '인기순':
+      default:
+        return copy;
+    }
+  }, [q, sort]);
+
+  return (
+    <div className="mx-auto max-w-[1200px] px-4 py-8">
+      <main>
+        <ResultHeader
+          query={q || '전체'}
+          total={filtered.length}
+          onSort={(v) => setSort(v)}
+        />
+
+        {filtered.length === 0 ? (
+          <div>검색 결과가 없습니다.</div>
+        ) : (
+          <section className="mt-6 grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3 xl:grid-cols-4">
+            {filtered.map((item) => (
+              <ProductCard
+                key={item.id}
+                img={item.img}
+                title={item.title}
+                brand={item.brand}
+                discount={item.discount ? `${item.discount}` : undefined}
+                price={item.price.toLocaleString()}
+                originalPrice={item.originalPrice.toLocaleString()}
+                rating={item.rating}
+              />
+            ))}
+          </section>
+        )}
+      </main>
+    </div>
+  );
+}

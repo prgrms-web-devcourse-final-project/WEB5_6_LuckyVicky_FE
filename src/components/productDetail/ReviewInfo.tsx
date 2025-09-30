@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import TextReviewCard from "./TextReviewCard";
 import PhotoReviewCard from "./PhotoReviewCard";
 
@@ -84,6 +84,13 @@ export default function ReviewInfo() {
     setRating(0);
     setOpenModal(false);
   }
+
+    useEffect(() => {
+      if (!openModal) return;
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = prev };
+    }, [openModal]);
 
   return (
     <section>
