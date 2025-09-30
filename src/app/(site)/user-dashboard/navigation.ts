@@ -4,5 +4,12 @@ export const navItems = [
   { href: '/user-dashboard/wish-list', label: '찜한 상품 목록' },
   { href: '/user-dashboard/follow-list', label: '팔로우하는 작가' },
   { href: '/user-dashboard/funding-list', label: '참여한 펀딩 목록' },
-  { href: '/user-dashboard/apply-author', label: '작가 신청' },
+  {
+    href: '',
+    label: '작가 신청',
+    subItems: [
+      { href: '/user-dashboard/apply-author/apply', label: '신청하기' },
+      { href: '/user-dashboard/apply-author/history', label: '신청 내역' },
+    ],
+  },
 ];
