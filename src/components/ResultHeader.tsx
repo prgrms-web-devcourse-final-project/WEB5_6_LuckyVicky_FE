@@ -37,7 +37,7 @@ export default function ResultHeader({
         <span>에 대한 검색결과</span>
       </div>
 
-      <div className="flex border border-primary">
+      <div className="flex border border-primary px-[30px] py-">
         <span>총 {total}개 상품</span>
         <select 
         value={sort}
