@@ -27,7 +27,7 @@ export default function Button({
 
   const variants: Record<Variant, string> = {
     primary: 'bg-primary text-white hover:bg-primary/70',
-    tertiary: 'bg-tertiary text-tertiary hover:bg-secondary/70',
+    tertiary: 'bg-none text-tertiary border border-tertiary hover:bg-tertiary-20',
     outline: 'border border-primary text-primary bg-none hover:bg-gray-50',
     danger: 'bg-red-500 text-white hover:bg-red-600',
   };
