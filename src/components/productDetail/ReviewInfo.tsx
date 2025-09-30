@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import TextReviewCard from "./TextReviewCard";
 import PhotoReviewCard from "./PhotoReviewCard";
 
@@ -84,6 +84,13 @@ export default function ReviewInfo() {
     setRating(0);
     setOpenModal(false);
   }
+
+    useEffect(() => {
+      if (!openModal) return;
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = prev };
+    }, [openModal]);
 
   return (
     <section>
@@ -225,7 +232,7 @@ export default function ReviewInfo() {
                   <input 
                   type="text"
                   value={hashtagsInput}
-                  placeholder="#최대 3개 해시태그"
+                  placeholder="#최대 3개"
                   onChange={(e) => {
                     const raw = e.target.value;
                     const tags = raw.split(/[\s,]+/).filter(Boolean);
