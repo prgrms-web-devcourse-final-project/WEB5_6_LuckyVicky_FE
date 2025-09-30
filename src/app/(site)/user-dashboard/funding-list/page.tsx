@@ -79,7 +79,7 @@ export default function FundingListPage() {
   };
 
   return (
-    <div className="p-12 bg-white min-h-screen mx-auto mt-[10vh] max-w-[100vh] w-full">
+    <div className="p-12 bg-white min-h-screen mx-auto max-w-[50vw] w-full">
       {/* 헤더 */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-6">
