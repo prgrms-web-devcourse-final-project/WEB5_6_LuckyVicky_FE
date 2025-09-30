@@ -3,16 +3,16 @@
 import Shop from "@/assets/icon/shop.svg";
 import Mypage from "@/assets/icon/mypage.svg";
 import News from "@/assets/icon/news.svg";
-import Search from "@/assets/icon/search.svg";
 import Login from "@/assets/icon/login.svg";
 
 import { navItems } from "@/utils/navigation";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import CategoryNav from "./CategoryNav";
 import Notification from "./Notification";
+import SearchBox from "./search/SearchBox";
 
 
 
@@ -89,22 +89,7 @@ export default function Header() {
         </h1>
 
         {/* 검색창 */}
-        <form 
-        onSubmit={onSubmit}
-        className="relative flex-1 min-w-[200px] max-w-[840px] mr-4 lg:mr-[175px]">
-            <input 
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
-                placeholder="상품, 작가명으로 검색"
-                className="w-full border border-primary rounded-2xl py-2 pl-4 pr-10 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-emerald-800"
-            />
-            <button 
-                type="submit"
-                className="absolute right-3 top-1/2 -translate-y-1/2"
-                >
-                    <Search />
-            </button>
-        </form>
+        <SearchBox />
 
         {/* 우측 내비 */}
         <nav>

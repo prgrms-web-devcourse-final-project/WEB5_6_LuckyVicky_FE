@@ -1,6 +1,5 @@
 'use client'
 
-import { allProducts } from "@/app/(site)/search/page";
 import { useState } from "react";
 
 const SORTS = ['인기순', '최신순', '낮은 가격순', '높은 가격순'] as const;
@@ -13,17 +12,10 @@ export default function ResultHeader({
 }: {
   query:string;
   total:number;
-  onSort:(v:Sort )=> void;
+  onSort:(v:Sort ) => void;
 }) {
 
   const [sort, setSort] = useState<Sort>('인기순');
-  const [keyword, setKeyword] = useState(query);
-
-  // 소문자
-  const filtered = allProducts.filter((item) => 
-  item.title.toLowerCase().includes(keyword.toLowerCase()) ||
-  item.brand.toLowerCase().includes(keyword.toLowerCase())
-  );
 
   const change = (v:Sort) => {
     setSort(v);
@@ -32,16 +24,18 @@ export default function ResultHeader({
 
   return (
     <div>
-      <div className="flex font-bold text-[32px] pb-8">
-        <div className="bg-primary-20">{query}</div>
+      <div className="flex font-bold text-[30px] pb-8">
+        <div className="bg-primary-20 px-2 mr-2">{query}</div>
         <span>에 대한 검색결과</span>
       </div>
 
-      <div className="flex border border-primary px-[30px] py-">
+      <div className="flex justify-between border border-primary px-[30px] py-3">
         <span>총 {total}개 상품</span>
-        <select 
+        <div className="border border-primary">
+          <select 
         value={sort}
         onChange={(e) => change(e.target.value as Sort)}
+        className="focus:outline-none text-sm text-gray-500"
         >
           {SORTS.map((item) => (
             <option key={item} value={item}>
@@ -49,6 +43,7 @@ export default function ResultHeader({
             </option>
           ))}
         </select>
+        </div>
       </div>
     </div>
   )

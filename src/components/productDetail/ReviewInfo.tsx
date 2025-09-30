@@ -232,7 +232,7 @@ export default function ReviewInfo() {
                   <input 
                   type="text"
                   value={hashtagsInput}
-                  placeholder="#최대 3개 해시태그"
+                  placeholder="#최대 3개"
                   onChange={(e) => {
                     const raw = e.target.value;
                     const tags = raw.split(/[\s,]+/).filter(Boolean);

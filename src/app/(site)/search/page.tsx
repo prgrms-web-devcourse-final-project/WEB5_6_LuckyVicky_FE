@@ -2,14 +2,19 @@
 
 import { useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import ResultHeader from '@/components/ResultHeader';
+import ResultHeader from '@/components/search/ResultHeader';
 import ProductCard from '@/components/ProductCard';
 import { categoryData, Product } from '@/utils/categoryData';
+
+import Error from "@/assets/icon/error.svg";
+import { fuzzyMatch } from '@/utils/search';
 
 const SORTS = ['인기순', '최신순', '낮은 가격순', '높은 가격순'] as const;
 type Sort = typeof SORTS[number];
 
 export const allProducts:Product[] = Object.values(categoryData).flatMap((category) => category.products);
+
+
 
 function toNumberPrice(v: string | number) {
   if (typeof v === 'number') return v;
@@ -25,11 +30,12 @@ export default function Page() {
   const filtered = useMemo(() => {
     // 검색어: (대소문자 무시)
     const keyword = q.toLowerCase();
+    
     const list = allProducts.filter(
       (item) =>
         !keyword ||
-        item.title.toLowerCase().includes(keyword) ||
-        item.brand.toLowerCase().includes(keyword)
+        fuzzyMatch(keyword, item.title) ||
+        fuzzyMatch(keyword, item.brand)
     );
 
     // 정렬: FilteredSection과 동일 로직
@@ -57,7 +63,11 @@ export default function Page() {
         />
 
         {filtered.length === 0 ? (
-          <div>검색 결과가 없습니다.</div>
+          <div className='flex flex-col justify-center items-center text-center p-50 mt-4 bg-tertiary-20'>
+            <Error width={90} height={90}  />
+            <span className='mt-4 mb-1'>검색결과가 없습니다.</span>
+            <span>검색어를 다시 입력해주세요.</span>
+          </div>
         ) : (
           <section className="mt-6 grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3 xl:grid-cols-4">
             {filtered.map((item) => (
