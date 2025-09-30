@@ -25,7 +25,7 @@ export function AuthorCard({
       </button>
 
       {/* 프로필 이미지 */}
-      <div className="w-32 h-32 rounded-full bg-gray-200 border-4 border-gray-100 flex items-center justify-center mb-6">
+      <div className="w-33 h-33 rounded-full   flex items-center justify-center mb-6">
         {profileImage ? (
           <Image
             src={profileImage}
@@ -35,13 +35,6 @@ export function AuthorCard({
             className="w-full h-full rounded-full object-cover"
           />
         ) : (
-          // <svg
-          //   className="w-32 h-32 text-gray-400"
-          //   fill="currentColor"
-          //   viewBox="0 0 24 24"
-          // >
-          //   <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-          // </svg>
           <AuthorImage />
         )}
       </div>
