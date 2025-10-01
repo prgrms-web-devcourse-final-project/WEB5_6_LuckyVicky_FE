@@ -41,7 +41,9 @@ function Footer() {
             </ul>
             <ul className="flex flex-col gap-2.5 text-gray-400">
               <li>
-                <button>이용약관</button>
+                <Link href="/terms">
+                  이용약관
+                </Link>
               </li>
               <li>
                 <button>개인정보처리방침</button>

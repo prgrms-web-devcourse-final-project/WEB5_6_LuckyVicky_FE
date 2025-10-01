@@ -1,6 +1,6 @@
 
 import { notFound } from "next/navigation";
-import { categoryData, CategorySlug } from "@/utils/categoryData";
+import { CATEGORY_SLUGS, categoryData, CategorySlug } from "@/utils/categoryData";
 import ProductCard from "@/components/ProductCard";
 import CategoryBtn from "@/components/mainCategory/CategoryBtn";
 import FilteredSection from "@/components/mainCategory/FilteredSection";
@@ -9,7 +9,7 @@ import Link from "next/link";
 
 // SSG: 존재하는 slug만 미리 생성
 export async function generateStaticParams() {
-  return Object.keys(categoryData).map((slug) => ({ slug }));
+  return CATEGORY_SLUGS.map((slug) => ({ slug }));
 }
 
 export const dynamicParams = false; // 목록 밖 slug → 404
@@ -35,7 +35,7 @@ export default async function CategoryPage({ params }: Props) {
     <main>
 
       <div className="flex">
-        <CategorySideBar />
+        <CategorySideBar title={category.name} />
       
       <div className="max-w-[min(1200px,calc(100vw-250px))] mx-auto pb-4">
       <section className="flex-1 pl-6 pt-10">
