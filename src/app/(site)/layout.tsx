@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import ScrollTopBtn from '@/components/ScrollTopBtn';
 
 const suit = localFont({
   src: [
@@ -55,6 +56,7 @@ export default function SiteLayout({
     <>
       <Header />
       <main className="min-h-screen">{children}</main>
+      <ScrollTopBtn />
       <Footer />
     </>
   );
