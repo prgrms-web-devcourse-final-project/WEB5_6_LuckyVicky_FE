@@ -35,7 +35,7 @@ export default async function CategoryPage({ params }: Props) {
     <main>
 
       <div className="flex">
-        <CategorySideBar />
+        <CategorySideBar title={category.name} />
       
       <div className="max-w-[min(1200px,calc(100vw-250px))] mx-auto pb-4">
       <section className="flex-1 pl-6 pt-10">
