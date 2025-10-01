@@ -21,16 +21,27 @@ const forestItems = [
 
 export default function CategoryNav() {
   const pathname = usePathname();
+
+  const toHref = (slug: string) =>
+    slug === 'funding' ? '/funding' : `/category/${slug}`;
+
+  const isActive = (slug: string) =>
+    slug === 'funding'
+      ? pathname.startsWith('/funding')
+      : pathname.startsWith(`/category/${slug}`);
+
   return (
     <nav className="border-t border-b border-slate-200 bg-white">
       <ul className="mx-auto max-w-[1200px] flex gap-6 px-5 py-3 text-[14px] font-semibold">
         {/* 카테고리 */}
-        {categoryItems.map(item => (
+        {categoryItems.map((item) => (
           <li key={item.slug}>
             <Link
-              href={`/category/${item.slug}`}
+              href={toHref(item.slug)}
               className={`hover:text-primary ${
-                pathname === `/category/${item.slug}` ? 'text-primary font-bold border-b-2 border-primary' : 'text-gray-600'
+                isActive(item.slug)
+                  ? 'text-primary font-bold border-b-2 border-primary'
+                  : 'text-gray-600'
               }`}
             >
               {item.label}
@@ -41,12 +52,14 @@ export default function CategoryNav() {
         <span className="text-slate-400">|</span>
 
         {/* 작가숲 */}
-        {forestItems.map(item => (
+        {forestItems.map((item) => (
           <li key={item.href}>
             <Link
               href={item.href}
               className={`hover:text-tertiary ${
-                pathname === item.href ? 'text-tertiary font-bold' : 'text-tertiary'
+                pathname.startsWith(item.href)
+                  ? 'text-tertiary font-bold'
+                  : 'text-tertiary'
               }`}
             >
               {item.label}
