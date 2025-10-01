@@ -1,6 +1,6 @@
 'use client';
 
-import AdminHeader from '@/components/AdminHeader';
+import AdminHeader from '@/components/admin/AdminHeader';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import Link from 'next/link';
 import Login from '@/assets/icon/login.svg';

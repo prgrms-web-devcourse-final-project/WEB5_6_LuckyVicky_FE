@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 
 function Footer() {
   return (
@@ -22,13 +23,20 @@ function Footer() {
           <div className="flex gap-22">
             <ul className="flex flex-col gap-2.5 text-gray-400">
               <li>
-                <button>자주 묻는 질문(FAQ)</button>
+                <Link href='/help/faq'>
+                 <button className='cursor-pointer hover:underline'>자주 묻는 질문(FAQ)</button>
+                </Link>
+               
               </li>
               <li>
-                <button>공지사항</button>
+                <Link href='/help/notice'>
+                 <button className='cursor-pointer hover:underline'>공지사항</button>
+                </Link>
               </li>
               <li>
-                <button>문의하기</button>
+                <Link href='/help/contact'>
+                 <button className='cursor-pointer hover:underline'>문의하기</button>
+                </Link>
               </li>
             </ul>
             <ul className="flex flex-col gap-2.5 text-gray-400">
