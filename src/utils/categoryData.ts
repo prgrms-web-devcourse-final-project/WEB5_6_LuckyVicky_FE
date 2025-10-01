@@ -24,36 +24,21 @@ export type Category = {
   subCategories?: SubCategory[];
 };
 
+// 슬러그 
+export const CATEGORY_SLUGS = [
+  'sticker',
+  'memo',
+  'note',
+  'accessory',
+  'etc',
+  'digital',
+] as const;
+
+// slug 타입
+export type CategorySlug = typeof CATEGORY_SLUGS[number];
+
 // 전체 카테고리 데이터
 export const categoryData: Record<string, Category> = {
-  funding: {
-    name: "펀딩",
-    products: [
-      {
-        id: "funding-1",
-        title: "펀딩 1",
-        img: "/productexample1.svg",
-        brand: "브랜드A",
-        discount: "20%",
-        price: "8,000",
-        originalPrice: "10,000",
-        rating: "4.7",
-        createdAt: "2025-09-24",
-      },
-      {
-        id: "funding-2",
-        title: "펀딩 2",
-        img: "/productexample1.svg",
-        brand: "브랜드B",
-        discount: "10%",
-        price: "18,000",
-        originalPrice: "20,000",
-        rating: "4.5",
-        createdAt: "2025-09-23",
-      },
-    ],
-  },
-
   sticker: {
     name: "스티커",
     subCategories: [
@@ -237,9 +222,6 @@ export const categoryData: Record<string, Category> = {
     ],
   },
 };
-
-// slug 타입
-export type CategorySlug = keyof typeof categoryData;
 
 // 메인페이지 데이터
 export const mainData: Product[] = [
