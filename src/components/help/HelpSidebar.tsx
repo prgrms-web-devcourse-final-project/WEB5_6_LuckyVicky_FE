@@ -19,7 +19,7 @@ export default function HelpSidebar({ className }: HelpSidebarProps = {}) {
   return (
     <aside
       className={clsx(
-        "flex w-[241px] shrink-0 flex-col bg-[var(--color-primary-20)] p-6 text-[var(--color-gray-800)]",
+        "flex w-[241px] flex-col bg-[var(--color-primary-20)] p-6 text-[var(--color-gray-800)]",
         className,
       )}
     >
