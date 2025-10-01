@@ -1,6 +1,5 @@
 import ToastProvider from '@/components/ToastProvider';
 import '../style/globals.css';
-import '../style/reset.css';
 
 export default function RootLayout({
   children,
