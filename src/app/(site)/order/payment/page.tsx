@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useOrderStore } from '@/app/order/stores/orderStore';
+import { useOrderStore } from '@/app/(site)/order/stores/orderStore';
 
 const PaymentPage = () => {
   const {
