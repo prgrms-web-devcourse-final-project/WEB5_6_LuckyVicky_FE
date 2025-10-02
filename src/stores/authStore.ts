@@ -1,6 +1,8 @@
+"use client";
+
 import { create } from 'zustand';
 
-type Role = 'USER' | 'ARTIST' | 'ADMIN';
+export type Role = 'USER' | 'ARTIST' | 'ADMIN';
 type AuthState = {
   role: Role | null;
   availableRoles: Role[];

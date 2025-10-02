@@ -9,7 +9,7 @@ import { login } from '@/services/auth';
 import googleIcon from '@/assets/icon/google.png';
 import NaverIcon from '@/assets/icon/naver.svg';
 import kakaoIcon from '@/assets/icon/kakao.png';
-import { useAuthStore } from '@/stores/authStore';
+import { useAuthStore, type Role } from '@/stores/authStore';
 
 const socialButtonClass =
   'flex w-full items-center justify-center gap-3 rounded-lg border border-gray-200 px-4 py-2 transition-colors duration-150 hover:border-[var(--color-primary)]';
@@ -36,6 +36,7 @@ export default function LoginCard() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const selectedRole = selected === 'normal' ? 'USER' : 'ARTIST';
   const toast = useToast();
   const router = useRouter();
 
@@ -79,6 +80,7 @@ export default function LoginCard() {
                 e.preventDefault();
                 if (!email || !password || submitting) return;
                 try {
+                  setSubmitting(true);
                   const response = await login({
                     email,
                     password,
