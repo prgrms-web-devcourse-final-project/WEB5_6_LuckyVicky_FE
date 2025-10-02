@@ -3,36 +3,24 @@
 import Image from 'next/image';
 import { useMemo } from 'react';
 
-type Creator = {
-  id: string;
-  name: string;
-};
+type Creator = { id: string; name: string };
 
 type TreeMarker = {
   creator: Creator;
-  top: number; // px from top (button bottom aligns via translate-y)
-  left: number; // px from left (button center aligns via translate-x)
+  top: number; 
+  left: number; 
   scale: number;
   rotation: number;
   image: string;
   width: number;
-  height: number;
+  totalHeight: number;
 };
 
-type ForestLayout = {
-  markers: TreeMarker[];
-  containerHeight: number;
-};
+type ForestLayout = { markers: TreeMarker[]; containerHeight: number };
 
 const treeImages = [
-  '/tree1.png',
-  '/tree2.png',
-  '/tree3.png',
-  '/tree4.png',
-  '/tree5.png',
-  '/tree6.png',
-  '/tree7.png',
-  '/tree8.png',
+  '/tree1.png','/tree2.png','/tree3.png','/tree4.png',
+  '/tree5.png','/tree6.png','/tree7.png','/tree8.png',
 ];
 
 const sampleCreators: Creator[] = [
@@ -50,11 +38,33 @@ const sampleCreators: Creator[] = [
   { id: 'creator-12', name: '작가12' },
 ];
 
+// ------------------- 노이즈 유틸 -------------------
+function hash2D(ix: number, iy: number) {
+  let h = ix * 374761393 + iy * 668265263;
+  h = (h ^ (h >>> 13)) * 1274126177;
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967295;
+}
+function lerp(a: number, b: number, t: number) { return a + (b - a) * t; }
+function smoothstep(t: number) { return t * t * (3 - 2 * t); }
+
+function valueNoise2D(x: number, y: number) {
+  const xi = Math.floor(x), yi = Math.floor(y);
+  const tx = smoothstep(x - xi), ty = smoothstep(y - yi);
+  const v00 = hash2D(xi, yi);
+  const v10 = hash2D(xi + 1, yi);
+  const v01 = hash2D(xi, yi + 1);
+  const v11 = hash2D(xi + 1, yi + 1);
+  const vx0 = lerp(v00, v10, tx);
+  const vx1 = lerp(v01, v11, tx);
+  return lerp(vx0, vx1, ty);
+}
+// ---------------------------------------------------
+
 function hashStringToSeed(input: string): number {
   let hash = 0;
-  for (let index = 0; index < input.length; index += 1) {
-    hash = (hash << 5) - hash + input.charCodeAt(index);
-    hash |= 0; // 32비트 정수로 변환
+  for (let i = 0; i < input.length; i += 1) {
+    hash = (hash << 5) - hash + input.charCodeAt(i);
+    hash |= 0;
   }
   return Math.abs(hash) || 1;
 }
@@ -70,151 +80,210 @@ function createRng(seedValue: number) {
 }
 
 function createForestLayout(creators: Creator[]): ForestLayout {
-  const markers: TreeMarker[] = [];
+  if (creators.length === 0) {
+    return { markers: [], containerHeight: 900 };
+  }
+
+  const orderedCreators = [...creators].sort(
+    (a, b) => hashStringToSeed(a.id) - hashStringToSeed(b.id),
+  );
 
   const baseTreeWidth = 220;
   const baseTreeHeight = 260;
-  const horizontalMargin = 80;
-  const verticalMargin = 120;
-  const padding = 50; // tree 간 기본 간격(px)
-  const maxAttempts = 120;
+  const labelHeight = 40;
+  const maxScale = 1.25;
 
-  const estimatedCols = Math.max(3, Math.ceil(Math.sqrt(creators.length * 1.1)));
-  const estimatedRows = Math.max(1, Math.ceil(creators.length / estimatedCols));
+  const maxTreeWidth = baseTreeWidth * maxScale;
+  const maxTotalHeight = baseTreeHeight * maxScale + labelHeight;
 
-  const virtualWidth = Math.max(
-    1200,
-    horizontalMargin * 2 + estimatedCols * (baseTreeWidth + padding),
+  const horizontalMargin = 60;
+  const verticalMargin = 60;
+  const baseSeparation = 60;
+
+  const approxCols = Math.max(3, Math.ceil(Math.sqrt(creators.length)));
+  const approxRows = Math.max(1, Math.ceil(creators.length / approxCols));
+
+  let areaWidth = Math.max(
+    1920,
+    horizontalMargin * 2 + approxCols * (maxTreeWidth + baseSeparation),
   );
-  const virtualHeight = Math.max(
-    900,
-    verticalMargin * 2 + estimatedRows * (baseTreeHeight + padding),
+  let areaHeight = Math.max(
+    600,
+    verticalMargin * 2 + approxRows * (maxTotalHeight + baseSeparation),
   );
 
-  creators.forEach((creator, index) => {
+  const noiseScale = 1 / 300; // 1/300 ~ 1/600
+  const mulMin = 0.8;
+  const mulMax = 1.0;
+
+  type DetailedMarker = TreeMarker & {
+    centerX: number;
+    centerY: number;
+    radius: number;
+    localMul: number;
+  };
+
+  const detailedMarkers: DetailedMarker[] = [];
+
+  orderedCreators.forEach((creator, index) => {
     const rng = createRng(hashStringToSeed(`${creator.id}-${index}`));
-    const scale = 0.85 + rng() * 0.4;
+
+    const scale = 1;
     const rotation = (rng() - 0.5) * 6;
     const image = treeImages[Math.floor(rng() * treeImages.length)];
 
-    const treeWidth = baseTreeWidth * scale;
-    const treeHeight = baseTreeHeight * scale;
+    const treeWidth = baseTreeWidth;
+    const treeHeight = baseTreeHeight;
+    const totalHeight = treeHeight + labelHeight;
 
-    const minX = horizontalMargin + treeWidth / 2;
-    const maxX = virtualWidth - horizontalMargin - treeWidth / 2;
-    const minY = verticalMargin + treeHeight;
-    const maxY = virtualHeight - verticalMargin;
+    const separation = baseSeparation + rng() * baseSeparation;
+    const radius = Math.sqrt((treeWidth / 2) ** 2 + (totalHeight / 2) ** 2) + separation;
 
+    let minCenterX = horizontalMargin + treeWidth / 2;
+    let maxCenterX = areaWidth - horizontalMargin - treeWidth / 2;
+    let minCenterY = verticalMargin + totalHeight / 2;
+    let maxCenterY = areaHeight - verticalMargin - totalHeight / 2;
+
+    let rangeX = Math.max(0, maxCenterX - minCenterX);
+    let rangeY = Math.max(0, maxCenterY - minCenterY);
+
+    let spacingFactor = 1;
     let attempts = 0;
-    let chosenX = (minX + maxX) / 2;
-    let chosenY = (minY + maxY) / 2;
     let placed = false;
+    let centerX = (minCenterX + maxCenterX) / 2;
+    let centerY = (minCenterY + maxCenterY) / 2;
 
-    const overlaps = (x: number, y: number) =>
-      markers.some((marker) => {
-        const markerWidth = marker.width;
-        const markerHeight = marker.height;
+    const maxAttempts = 2000;
 
-        const rectA = {
-          left: x - treeWidth / 2,
-          right: x + treeWidth / 2,
-          top: y - treeHeight,
-          bottom: y,
-        };
+    while (!placed && attempts < maxAttempts) {
+      const candidateX = rangeX > 0 ? minCenterX + rng() * rangeX : (minCenterX + maxCenterX) / 2;
+      const candidateY = rangeY > 0 ? minCenterY + rng() * rangeY : (minCenterY + maxCenterY) / 2;
 
-        const rectB = {
-          left: marker.left - markerWidth / 2,
-          right: marker.left + markerWidth / 2,
-          top: marker.top - markerHeight,
-          bottom: marker.top,
-        };
+      // 지역 배수 결정
+      const candMul = lerp(
+        mulMin,
+        mulMax,
+        valueNoise2D(candidateX * noiseScale, candidateY * noiseScale),
+      );
 
-        return !(
-          rectA.right + padding < rectB.left ||
-          rectA.left > rectB.right + padding ||
-          rectA.bottom + padding < rectB.top ||
-          rectA.top > rectB.bottom + padding
-        );
+      const collides = detailedMarkers.some((marker) => {
+        const dx = candidateX - marker.centerX;
+        const dy = candidateY - marker.centerY;
+        const required = (radius * candMul + marker.radius * marker.localMul) * spacingFactor;
+        return dx * dx + dy * dy < required * required;
       });
 
-    while (attempts < maxAttempts) {
-      attempts += 1;
-      const candidateX = minX + rng() * Math.max(20, maxX - minX);
-      const candidateY = minY + rng() * Math.max(20, maxY - minY);
+      if (!collides) {
+        centerX = candidateX;
+        centerY = candidateY;
 
-      if (!overlaps(candidateX, candidateY)) {
-        chosenX = candidateX;
-        chosenY = candidateY;
+        const top = centerY + totalHeight / 2;
+        const left = centerX;
+
+        detailedMarkers.push({
+          creator,
+          top,
+          left,
+          scale,
+          rotation,
+          image,
+          width: treeWidth,
+          totalHeight,
+          centerX,
+          centerY,
+          radius,
+          localMul: candMul, // 저장
+        });
+
         placed = true;
+      } else {
+        attempts += 1;
+        if (attempts % 160 === 0) spacingFactor = Math.max(0.4, spacingFactor * 0.85);
+        if (attempts % 280 === 0) {
+          const expandFactor = 1.04;
+          areaWidth *= expandFactor;
+          areaHeight *= expandFactor;
+          maxCenterX = areaWidth - horizontalMargin - treeWidth / 2;
+          maxCenterY = areaHeight - verticalMargin - totalHeight / 2;
+          minCenterX = horizontalMargin + treeWidth / 2;
+          minCenterY = verticalMargin + totalHeight / 2;
+          rangeX = Math.max(0, maxCenterX - minCenterX);
+          rangeY = Math.max(0, maxCenterY - minCenterY);
+        }
+      }
+    }
+  });
+
+  const jitterRangeBase = baseSeparation * 0.5;
+  const clamp = (value: number, min: number, max: number) =>
+    Math.min(max, Math.max(min, value));
+
+  detailedMarkers.forEach((marker, idx) => {
+    const jitterRng = createRng(hashStringToSeed(`${marker.creator.id}:jitter:${idx}`));
+
+    const minX = horizontalMargin + marker.width / 2;
+    const maxX = areaWidth - horizontalMargin - marker.width / 2;
+    const minY = verticalMargin + marker.totalHeight / 2;
+    const maxY = areaHeight - verticalMargin - marker.totalHeight / 2;
+
+    const jitterRange = Math.min(
+      jitterRangeBase,
+      Math.min(maxX - minX, maxY - minY) * 0.5,
+    );
+
+    if (jitterRange <= 0) {
+      return;
+    }
+
+    let bestX = marker.centerX;
+    let bestY = marker.centerY;
+
+    for (let attempt = 0; attempt < 16; attempt += 1) {
+      const angle = jitterRng() * Math.PI * 2;
+      const distance = jitterRng() * jitterRange;
+      const candidateX = clamp(
+        marker.centerX + Math.cos(angle) * distance,
+        minX,
+        maxX,
+      );
+      const candidateY = clamp(
+        marker.centerY + Math.sin(angle) * distance,
+        minY,
+        maxY,
+      );
+
+      const collides = detailedMarkers.some((other) => {
+        if (other === marker) return false;
+        const dx = candidateX - other.centerX;
+        const dy = candidateY - other.centerY;
+        const required =
+          (marker.radius * marker.localMul + other.radius * other.localMul) * 0.95;
+        return dx * dx + dy * dy < required * required;
+      });
+
+      if (!collides) {
+        bestX = candidateX;
+        bestY = candidateY;
         break;
       }
     }
 
-    if (!placed) {
-      const cellWidth = baseTreeWidth + padding;
-      const cellHeight = baseTreeHeight + padding;
-
-      const gridCols = Math.max(
-        estimatedCols + 2,
-        Math.ceil((virtualWidth - horizontalMargin * 2) / cellWidth),
-      );
-      const gridRows = Math.max(
-        estimatedRows + 2,
-        Math.ceil((virtualHeight - verticalMargin * 2) / cellHeight),
-      );
-
-      outer: for (let row = 0; row < gridRows; row += 1) {
-        for (let col = 0; col < gridCols; col += 1) {
-          const gridX =
-            horizontalMargin + col * cellWidth + cellWidth / 2 + (rng() - 0.5) * 20;
-          const gridY =
-            verticalMargin + (row + 1) * cellHeight + (rng() - 0.5) * 20;
-
-          if (
-            gridX < minX ||
-            gridX > maxX ||
-            gridY < minY ||
-            gridY > maxY
-          ) {
-            continue;
-          }
-
-          if (!overlaps(gridX, gridY)) {
-            chosenX = gridX;
-            chosenY = gridY;
-            placed = true;
-            break outer;
-          }
-        }
-      }
-
-      if (!placed) {
-        const fallbackX = Math.min(
-          maxX,
-          Math.max(minX, horizontalMargin + ((index % gridCols) + 0.5) * cellWidth),
-        );
-        const fallbackY = Math.min(
-          maxY,
-          Math.max(minY, verticalMargin + ((Math.floor(index / gridCols) + 1) * cellHeight)),
-        );
-        chosenX = fallbackX;
-        chosenY = fallbackY;
-      }
-    }
-
-    markers.push({
-      creator,
-      top: chosenY,
-      left: chosenX,
-      scale,
-      rotation,
-      image,
-      width: treeWidth,
-      height: treeHeight,
-    });
+    marker.centerX = bestX;
+    marker.centerY = bestY;
+    marker.left = bestX;
+    marker.top = bestY + marker.totalHeight / 2;
   });
 
-  return { markers, containerHeight: virtualHeight };
+  const containerHeight = Math.max(
+    areaHeight,
+    ...detailedMarkers.map((marker) => marker.top + verticalMargin),
+  );
+
+  const markers: TreeMarker[] = detailedMarkers.map(
+    ({ centerX: _cx, centerY: _cy, radius: _r, localMul: _m, ...rest }) => rest,
+  );
+
+  return { markers, containerHeight };
 }
 
 export default function ForestPage() {
@@ -224,9 +293,9 @@ export default function ForestPage() {
   );
 
   return (
-    <main className="relative flex-1 overflow-hidden bg-[#f5f5f5]">
+    <main className="relative flex-1 overflow-auto bg-[#f5f5f5]">
       <div
-        className="relative mx-auto flex w-full flex-col overflow-hidden bg-center shadow-[0_12px_45px_-20px_rgba(99,139,86,0.5)]"
+        className="relative mx-auto flex w-full flex-col overflow-auto bg-center shadow-[0_12px_45px_-20px_rgba(99,139,86,0.5)]"
         style={{
           minHeight: `${containerHeight}px`,
           backgroundImage: 'url(/forest_full.png)',
@@ -235,32 +304,28 @@ export default function ForestPage() {
         }}
       >
         <div className="relative flex-1">
-          {treeMarkers.map((marker) => (
+          {treeMarkers.map((m) => (
             <button
-              key={marker.creator.id}
+              key={m.creator.id}
               type="button"
               className="group absolute flex -translate-x-1/2 -translate-y-full flex-col items-center gap-2 text-center"
-              style={{
-                top: `${marker.top}px`,
-                left: `${marker.left}px`,
-              }}
+              style={{ top: `${m.top}px`, left: `${m.left}px` }}
             >
               <div
                 className="pointer-events-none origin-bottom transition-transform duration-300 group-hover:scale-105"
-                style={{
-                  transform: `scale(${marker.scale}) rotate(${marker.rotation}deg)`,
-                }}
+                style={{ width: 220, height: 260, transform: `scale(${m.scale}) rotate(${m.rotation}deg)` }}
               >
                 <Image
-                  src={marker.image}
-                  alt={`${marker.creator.name}의 숲 나무`}
+                  src={m.image}
+                  alt={`${m.creator.name}의 숲 나무`}
                   width={220}
                   height={260}
                   priority
                 />
               </div>
-              <span className="rounded-full bg-white/80 px-4 py-1 text-sm font-medium text-[var(--color-gray-800)] shadow-sm transition-colors group-hover:bg-white">
-                {marker.creator.name}
+              <span className="z-10 rounded-full bg-white/80 px-4 py-1 text-sm font-medium text-[var(--color-gray-800)] shadow-sm transition-colors group-hover:bg-white
+              whitespace-nowrap">
+                {m.creator.name}
               </span>
             </button>
           ))}
