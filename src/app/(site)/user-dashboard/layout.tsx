@@ -18,8 +18,8 @@ function Layout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="flex">
-      <div className="h-100vh w-[241px] bg-primary-20 pl-[21px]">
+    <div className="flex h-screen">
+      <div className=" w-[241px] bg-primary-20 pl-[21px]">
         <h2 className="text-[32px] font-bold pt-7 mb-[34px]">마이 페이지</h2>
         <div className="flex flex-col gap-[26px]">
           {navItems.map((elem) => {
