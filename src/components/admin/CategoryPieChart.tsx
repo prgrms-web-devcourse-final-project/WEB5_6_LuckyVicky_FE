@@ -1,12 +1,7 @@
 'use client';
 
-import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  type PieLabelRenderProps,
-} from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import type { PieLabelRenderProps } from 'recharts/types/polar/Pie';
 
 type CategoryDatum = {
   name: string;
@@ -21,18 +16,27 @@ type CategoryPieChartProps = {
 
 const RADIAN = Math.PI / 180;
 
-function renderSliceLabel({
-  cx = 0,
-  cy = 0,
-  midAngle = 0,
-  innerRadius = 0,
-  outerRadius = 0,
-  percent = 0,
-}: PieLabelRenderProps) {
-  const radius = innerRadius + (outerRadius - innerRadius) / 2;
-  const x = cx + radius * Math.cos(-midAngle * RADIAN);
-  const y = cy + radius * Math.sin(-midAngle * RADIAN);
-  const isEmphasized = percent >= 0.25;
+function renderSliceLabel(props: PieLabelRenderProps) {
+  const {
+    cx = 0,
+    cy = 0,
+    midAngle = 0,
+    innerRadius = 0,
+    outerRadius = 0,
+    percent = 0,
+  } = props;
+
+  const centerX = typeof cx === 'number' ? cx : Number(cx) || 0;
+  const centerY = typeof cy === 'number' ? cy : Number(cy) || 0;
+  const angle = typeof midAngle === 'number' ? midAngle : Number(midAngle) || 0;
+  const inner = typeof innerRadius === 'number' ? innerRadius : Number(innerRadius) || 0;
+  const outer = typeof outerRadius === 'number' ? outerRadius : Number(outerRadius) || 0;
+  const pct = typeof percent === 'number' ? percent : Number(percent) || 0;
+
+  const radius = inner + (outer - inner) / 2;
+  const x = centerX + radius * Math.cos(-angle * RADIAN);
+  const y = centerY + radius * Math.sin(-angle * RADIAN);
+  const isEmphasized = pct >= 0.25;
   const fontSize = isEmphasized ? '1.5rem' : '1rem';
   const fontWeight = isEmphasized ? 700 : 600;
 
@@ -46,7 +50,7 @@ function renderSliceLabel({
       fontWeight={fontWeight}
       fontSize={fontSize}
     >
-      {`${Math.round(percent * 100)}%`}
+      {`${Math.round(pct * 100)}%`}
     </text>
   );
 }
@@ -62,8 +66,6 @@ export default function CategoryPieChart({
     }
     return acc;
   }, undefined);
-  const centerValue =
-    total === 0 || !topSlice ? 0 : Math.round((topSlice.value / total) * 100);
 
   return (
     <div className="flex flex-col justify-between gap-6 rounded-3xl bg-white p-6 md:flex-row">
