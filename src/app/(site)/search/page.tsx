@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { Suspense, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ResultHeader from '@/components/search/ResultHeader';
 import ProductCard from '@/components/ProductCard';
@@ -18,6 +18,26 @@ function toNumberPrice(v: string | number) {
 }
 
 export default function Page() {
+  return (
+    <Suspense fallback={<SearchFallback />}>
+      <SearchContent />
+    </Suspense>
+  );
+}
+
+function SearchFallback() {
+  return (
+    <div className="mx-auto max-w-[1200px] px-4 py-8">
+      <main>
+        <div className="rounded-2xl bg-white p-8 text-center text-lg font-medium text-gray-600 shadow">
+          검색 결과를 불러오는 중입니다…
+        </div>
+      </main>
+    </div>
+  );
+}
+
+function SearchContent() {
   const params = useSearchParams();
   const q = (params.get('q') ?? '').trim();
 
