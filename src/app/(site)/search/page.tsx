@@ -12,7 +12,7 @@ import { fuzzyMatch } from '@/utils/search';
 const SORTS = ['인기순', '최신순', '낮은 가격순', '높은 가격순'] as const;
 type Sort = typeof SORTS[number];
 
-export const allProducts:Product[] = Object.values(categoryData).flatMap((category) => category.products);
+const allProducts:Product[] = Object.values(categoryData).flatMap((category) => category.products);
 
 
 
