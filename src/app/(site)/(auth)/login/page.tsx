@@ -9,6 +9,7 @@ import { login } from '@/services/auth';
 import googleIcon from '@/assets/icon/google.png';
 import NaverIcon from '@/assets/icon/naver.svg';
 import kakaoIcon from '@/assets/icon/kakao.png';
+import { useAuthStore, type Role } from '@/stores/authStore';
 
 const socialButtonClass =
   'flex w-full items-center justify-center gap-3 rounded-lg border border-gray-200 px-4 py-2 transition-colors duration-150 hover:border-[var(--color-primary)]';
@@ -35,21 +36,25 @@ export default function LoginCard() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const selectedRole = selected === 'normal' ? 'USER' : 'ARTIST';
   const toast = useToast();
   const router = useRouter();
+
+  const setAuth = useAuthStore((state) => state.setAuth);
 
   const baseTab =
     'lg:w-[180px] md:w-[180px] rounded-t-xl px-5 py-3 text-[16px] font-semibold transition-colors duration-150 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]';
 
   const selectedTab = 'bg-[var(--color-primary)] text-[var(--color-white)]';
-  const unselectedTab = 'bg-[var(--color-primary-40)] text-[var(--color-black)] hover:text-[var(--color-white)]';
+  const unselectedTab =
+    'bg-[var(--color-primary-40)] text-[var(--color-black)] hover:text-[var(--color-white)]';
 
   return (
     <div className="relative px-6 py-12 md:px-10">
       <div className="absolute left-0 top-6 flex -translate-y-1/2 gap-2 md:p-10 md:w-full ">
         <button
           type="button"
-           className={`${baseTab} ${selected === 'normal' ? selectedTab : unselectedTab}`}
+          className={`${baseTab} ${selected === 'normal' ? selectedTab : unselectedTab}`}
           onClick={() => setSelected('normal')}
           aria-pressed={selected === 'normal'}
         >
@@ -76,14 +81,25 @@ export default function LoginCard() {
                 if (!email || !password || submitting) return;
                 try {
                   setSubmitting(true);
-                  const selectedRole = selected === 'normal' ? 'USER' : 'ARTIST';
-                  await login({ email, password, selectedRole });
-                  toast.success('로그인되었습니다!', {
-                    duration: 2000,
+                  const response = await login({
+                    email,
+                    password,
+                    selectedRole,
                   });
+                  const data = response.data;
+                  if (data) {
+                    setAuth({
+                      role: data.selectedRole ?? null,
+                      availableRoles: (data.availableRoles ?? []) as Role[],
+                      accessToken: data.accessToken,
+                      refreshToken: data.refreshToken,
+                    });
+                  }
+                  toast.success('로그인되었습니다!', { duration: 2000 });
                   router.push('/');
                 } catch (err) {
-                  const msg = err instanceof Error ? err.message : '로그인 실패';
+                  const msg =
+                    err instanceof Error ? err.message : '로그인 실패';
                   toast.error(msg);
                 } finally {
                   setSubmitting(false);
@@ -123,13 +139,12 @@ export default function LoginCard() {
                   비밀번호 찾기
                 </Link>
 
-                
-                <Link href="/register" className="underline-offset-2 hover:underline ">
+                <Link
+                  href="/register"
+                  className="underline-offset-2 hover:underline "
+                >
                   회원가입
                 </Link>
-              
-               
-          
               </div>
             </form>
           </div>

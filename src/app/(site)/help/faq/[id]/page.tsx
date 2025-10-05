@@ -1,7 +1,11 @@
 import PostDetail from '@/components/help/PostDetail';
 
-export default function Page({ params }: { params: { id: string } }) {
-  const { id } = params;
+type FaqParams = {
+  id: string;
+}
+
+export default async function Page({ params }: { params: Promise<FaqParams> }) {
+  const { id } = await params;
   return (
     <PostDetail
       header="자주 묻는 질문(FAQ)"

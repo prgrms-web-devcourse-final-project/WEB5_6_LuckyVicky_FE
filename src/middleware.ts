@@ -7,6 +7,14 @@ const { pathname, search } = nextUrl;
 
 if (process.env.NODE_ENV === 'development') return NextResponse.next(); // 개발 중 임시로 우회
 
+if (req.nextUrl.pathname.startsWith('/artist')) {
+    const role = req.cookies.get('role')?.value;
+    if (role !== 'ARTIST') {
+      return NextResponse.redirect(new URL('/login', req.url));
+    }
+}
+
+
 if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
 
 const token =
@@ -21,8 +29,11 @@ if (!token) {
 }
 }
 
+
 return NextResponse.next();
 }
+
+
 
 export const config = {
 matcher: ['/admin/:path*'],

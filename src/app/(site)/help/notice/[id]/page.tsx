@@ -1,7 +1,11 @@
 import PostDetail from '@/components/help/PostDetail';
 
-export default function Page({ params }: { params: { id: string } }) {
-  const { id } = params;
+type PageParams = {
+  id: string;
+};
+
+export default async function Page({ params }: { params: Promise<PageParams> }) {
+  const { id } = await params;
   return (
     <PostDetail
       header="공지사항"
@@ -16,4 +20,3 @@ export default function Page({ params }: { params: { id: string } }) {
     />
   );
 }
-
