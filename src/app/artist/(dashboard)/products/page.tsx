@@ -1,110 +1,66 @@
 'use client';
 
-import { useEffect, useState, type Key } from 'react';
-import AdminDataTable, {
-  AdminTableColumn,
-  SortDirection,
-} from '@/components/admin/AdminDataTable';
+import { useState, type Key } from 'react';
+import AdminDataTable, { AdminTableColumn, SortDirection } from '@/components/admin/AdminDataTable';
 import Button from '@/components/Button';
 import SearchIcon from '@/assets/icon/search.svg';
-import X from "@/assets/icon/x.svg";
-import Paperclip from '@/assets/icon/paperclip2.svg';
-import NoticeEditor from '@/components/editor/NoticeEditor';
+import ProductCreateModal, { ProductCreatePayload } from '@/components/artist/ProductCreateModal';
 
 type ProductRow = {
   id: string;
   name: string;
   author: string;
   status: string;
-  createdAt: string;
+  createdAt: string; // YYYY-MM-DD
 };
 
 const columns: AdminTableColumn<ProductRow>[] = [
   { key: 'id', header: '상품번호', align: 'center', sortable: true },
-  { key: 'name', header: '상품명', align: 'center', width: 'w-[220px]', sortable: true },
-  { key: 'author', header: '작가명' , align: 'center', sortable: true},
+  { key: 'name', header: '상품명', align: 'center', sortable: true },
+  { key: 'author', header: '작가명', align: 'center', sortable: true },
   { key: 'status', header: '판매상태', align: 'center', sortable: true },
   { key: 'createdAt', header: '등록일자', align: 'center', sortable: true },
 ];
 
-const productRows: ProductRow[] = [
-  {
-    id: '0123157',
-    name: '상품명입니다',
-    author: '작가명입니다',
-    status: '판매중',
-    createdAt: '2025-09-30',
-  },
-  {
-    id: '0123156',
-    name: '상품명입니다',
-    author: '작가명입니다',
-    status: '판매중',
-    createdAt: '2025-09-30',
-  },
-  {
-    id: '0123155',
-    name: '상품명입니다',
-    author: '작가명입니다',
-    status: '판매중',
-    createdAt: '2025-09-30',
-  },
-  {
-    id: '0123154',
-    name: '상품명입니다',
-    author: '작가명입니다',
-    status: '판매중',
-    createdAt: '2025-09-30',
-  },
-  {
-    id: '0123153',
-    name: '상품명입니다',
-    author: '작가명입니다',
-    status: '판매중',
-    createdAt: '2025-09-30',
-  },
-  {
-    id: '0123152',
-    name: '상품명입니다',
-    author: '작가명입니다',
-    status: '판매중',
-    createdAt: '2025-09-30',
-  },
-  {
-    id: '0123151',
-    name: '상품명입니다',
-    author: '작가명입니다',
-    status: '판매중',
-    createdAt: '2025-09-30',
-  },
-  {
-    id: '0123150',
-    name: '상품명입니다',
-    author: '작가명입니다',
-    status: '판매중',
-    createdAt: '2025-09-30',
-  },
+const initialRows: ProductRow[] = [
+  { id: '0123157', name: '상품명입니다', author: '작가명입니다', status: '판매중', createdAt: '2025-09-30' },
 ];
 
+// 유틸: 다음 상품번호(7자리 zero-pad)
+function nextId(rows: ProductRow[]) {
+  const max = rows.reduce((m, r) => {
+    const n = parseInt(r.id, 10);
+    return Number.isFinite(n) ? Math.max(m, n) : m;
+  }, 0);
+  return String(max + 1).padStart(7, '0');
+}
+
+// 유틸: YYYY-MM-DD (로컬)
+function todayYYYYMMDD() {
+  return new Date().toLocaleDateString('en-CA'); // e.g., 2025-10-05
+}
+
+// 유틸: 판매상태 간단 판정
+function resolveStatus(payload: ProductCreatePayload): string {
+  if (!payload.plannedSale) return '판매중';
+  const now = Date.now();
+  const start = payload.plannedSale.startAt ? new Date(payload.plannedSale.startAt).getTime() : NaN;
+  const end = payload.plannedSale.endAt ? new Date(payload.plannedSale.endAt).getTime() : NaN;
+
+  if (Number.isFinite(start) && now < start) return '판매예정';
+  if (Number.isFinite(end) && now > end) return '판매종료';
+  return '판매중';
+}
+
 export default function ProductsPage() {
-  const [sortKey, setSortKey] = useState<keyof ProductRow | undefined>(
-    undefined,
-  );
+  const [rows, setRows] = useState<ProductRow[]>(initialRows);        // <-- state로 관리
+  const [sortKey, setSortKey] = useState<keyof ProductRow | undefined>(undefined);
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
 
+  // 모달
   const [openModal, setOpenModal] = useState(false);
-  const [title, setTitle] = useState('');
-  const [files, setFiles] = useState<File[]>([]);
-  const [editorValue, setEditorValue] = useState("");
-
-  useEffect(() => {
-      if (!openModal) return;
-      const prev = document.body.style.overflow;
-      document.body.style.overflow = 'hidden';
-      return () => { document.body.style.overflow = prev };
-    }, [openModal]);
 
   const updateSort = (key: string, direction: SortDirection) => {
     setSortKey(key as keyof ProductRow);
@@ -115,6 +71,28 @@ export default function ProductsPage() {
     setSelectedIds(keys.map((key) => String(key)));
   };
 
+  // 제출 시 테이블에 한 줄 추가
+  const handleCreate = async (payload: ProductCreatePayload) => {
+    const newRow: ProductRow = {
+      id: nextId(rows),
+      name: payload.title,
+      author: payload.brand || payload.bizInfo?.companyName || '작가',
+      status: resolveStatus(payload),
+      createdAt: todayYYYYMMDD(),
+    };
+    setRows((prev) => [newRow, ...prev]); // 최신이 위로 오게 prepend
+    // 실제 API 호출이 있다면 성공 후 setRows, 실패 시 롤백/알림 처리
+  };
+
+  // 사업자 정보 불러오기 (옵션)
+  const loadBizFromProfile = async () => {
+    return {
+      companyName: '모리모리 스튜디오',
+      bizNumber: '123-45-67890',
+      ceoName: '홍길동',
+    };
+  };
+
   return (
     <>
       <div className="flex justify-between items-center">
@@ -122,13 +100,13 @@ export default function ProductsPage() {
         <div className="flex gap-2">
           <Button variant="tertiary">상품 삭제</Button>
           <Button variant="outline">상품 수정</Button>
-          <Button onClick={()=>setOpenModal(true)} variant="primary">상품 등록</Button>
+          <Button onClick={() => setOpenModal(true)} variant="primary">상품 등록</Button>
         </div>
       </div>
 
       <AdminDataTable
         columns={columns}
-        rows={productRows}
+        rows={rows}                             // <-- state 사용
         rowKey={(row) => row.id}
         sortKey={sortKey}
         sortDirection={sortDirection}
@@ -139,9 +117,7 @@ export default function ProductsPage() {
 
       <div className="relative mt-6 flex items-center justify-center">
         <nav className="flex items-center gap-4 text-sm text-[var(--color-gray-700)]">
-          <button className="px-2 py-1 hover:text-primary" aria-label="Prev">
-            ‹
-          </button>
+          <button className="px-2 py-1 hover:text-primary" aria-label="Prev">‹</button>
           {[1, 2, 3, 4, 5].map((n) => (
             <button
               key={n}
@@ -152,9 +128,7 @@ export default function ProductsPage() {
               {n}
             </button>
           ))}
-          <button className="px-2 py-1 hover:text-primary" aria-label="Next">
-            ›
-          </button>
+          <button className="px-2 py-1 hover:text-primary" aria-label="Next">›</button>
         </nav>
 
         <form className="absolute right-0 flex h-10 w-[240px] items-center rounded-[12px] border border-primary px-4 text-sm text-[var(--color-gray-700)]">
@@ -169,174 +143,15 @@ export default function ProductsPage() {
         </form>
       </div>
 
-      {/* 상품등록 작성모달창 */}
-      {openModal && (
-              <div 
-                className="fixed inset-0 z-[999] flex items-center justify-center bg-black/50"
-                onClick={()=>setOpenModal(false)}
-                >
-                <div 
-                  className="bg-white rounded-lg shadow-xl w-[700px] max-w-full p-6"
-                  onClick={(e)=>e.stopPropagation()}
-                  >
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-bold">상품 등록</h2>
-                    <button className="cursor-pointer rounded transition hover:bg-black/5 p-2" onClick={() => setOpenModal(false)}><X width={16} height={16} /></button>
-                  </div>
-                  <hr />
-      
-                  {/* 카테고리 */}
-                  <label className="flex items-center my-3 gap-6">
-                    <span className="shrink-0 whitespace-nowrap text-sm">카테고리</span>
-                      <select className="rounded border border-[var(--color-gray-200)] py-1 text-sm">
-                        <option>입고/재입고</option>
-                        <option>배송</option>
-                        <option>작가 입점</option>
-                        <option>품질/불량</option>
-                        <option>취소/환불</option>
-                        <option>기타</option>
-                      </select>
-                  </label>
-                  <hr />
-      
-                  {/* 제목 */}
-                  <label className="flex items-center py-2 gap-3">
-                    <span className="shrink-0 whitespace-nowrap text-sm">상품명</span>
-                      <input
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        className="flex-1 rounded border border-[var(--color-gray-200)] px-3 py-1 text-sm"
-                      />
-                    </label>
-                  <hr />
-
-                  <label className="flex items-center py-2 gap-3">
-                    <span className="shrink-0 whitespace-nowrap text-sm">판매가</span>
-                      <input
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        className="flex-1 rounded border border-[var(--color-gray-200)] px-3 py-1 text-sm"
-                      />
-                    </label>
-                  <hr />
-
-                  <label className="flex items-center py-2 gap-3">
-                    <span className="shrink-0 whitespace-nowrap text-sm">모델명</span>
-                      <input
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        className="flex-1 rounded border border-[var(--color-gray-200)] px-3 py-1 text-sm"
-                      />
-                    </label>
-                  <hr />
-
-                  <label className="flex items-center py-2 gap-3">
-                    <span className="shrink-0 whitespace-nowrap text-sm">사이즈</span>
-                      <input
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        className="flex-1 rounded border border-[var(--color-gray-200)] px-3 py-1 text-sm"
-                      />
-                    </label>
-                  <hr />
-
-                  <label className="flex items-center py-2 gap-3">
-                    <span className="shrink-0 whitespace-nowrap text-sm">재질</span>
-                      <input
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        className="flex-1 rounded border border-[var(--color-gray-200)] px-3 py-1 text-sm"
-                      />
-                    </label>
-                  <hr />
-
-                  <label className="flex items-center py-2 gap-3">
-                    <span className="shrink-0 whitespace-nowrap text-sm">원산지</span>
-                      <input
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        className="flex-1 rounded border border-[var(--color-gray-200)] px-3 py-1 text-sm"
-                      />
-                    </label>
-                  <hr />
-      
-                  <div className="flex flex-col">
-                    <span className="text-sm py-2">내용</span>
-                    <NoticeEditor
-                    value={editorValue}
-                    onChange={setEditorValue}
-                    onUploadImage={async (file) => URL.createObjectURL(file)}
-                    />
-                  </div>
-      
-                  {/* 첨부파일 */}
-                  <div className="my-[13px] flex items-center gap-3">
-                    <div className="flex items-center gap-0.5">
-                      <span className="shrink-0 text-sm">첨부파일</span>
-                      <Paperclip className="block size-4 overflow-visible text-[var(--color-gray-200)] shrink-0" />
-                    </div>
-                    <div className="relative flex-1">
-                    <input
-                      id="fileInput"
-                      type="file"
-                      multiple
-                      className="sr-only"
-                      onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
-                    />
-                    <input
-                      type="text"
-                      readOnly
-                      value={
-                        files.length === 0
-                          ? ''
-                          : files.length === 1
-                            ? files[0].name
-                            : `${files[0].name} 외 ${files.length - 1}개`
-                      }
-                      placeholder="파일을 선택하세요"
-                      className="w-full rounded border border-[var(--color-gray-200)] px-3 py-2 pr-24 leading-none text-sm"
-                      onClick={() => document.getElementById('fileInput')?.click()}
-                    />
-                    {files.length > 0 ? (
-                      <button
-                        type="button"
-                        onClick={() => setFiles([])}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded border border-[var(--color-primary)] px-3 py-1 text-sm leading-none transition hover:bg-primary-20"
-                      >
-                        파일 삭제
-                      </button>
-                    ) : (
-                      <label
-                        htmlFor="fileInput"
-                        className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer rounded border border-[var(--color-primary)] px-3 py-1 text-sm leading-none transition hover:bg-primary-20"
-                      >
-                        파일 선택
-                      </label>
-                    )}
-                  </div>
-                </div>
-      
-                  {/* 작성버튼 */}
-                  <div className="flex justify-end gap-2 mt-4">
-                    <button
-                      onClick={() => setOpenModal(false)}
-                      className="px-3 py-2 rounded-md border border-primary text-primary font-semibold text-sm cursor-pointer"
-                    >
-                      작성취소
-                    </button>
-                    <button
-                      onClick={() => {
-                        console.log("저장:", editorValue);
-                        setOpenModal(false);
-                      }}
-                      className="px-3 py-2 rounded-md border border-primary bg-primary text-white font-semibold text-sm cursor-pointer"
-                    >
-                      작성하기
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
+      {/* 분리된 모달 컴포넌트 */}
+      <ProductCreateModal
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        onSubmit={handleCreate}
+        initialBrand="내 브랜드"   // 로그인한 작가 브랜드로 대체
+        initialBizInfo={{}}        // 프로필 기본값 있으면 넣기
+        onLoadBizFromProfile={loadBizFromProfile}
+      />
     </>
   );
 }

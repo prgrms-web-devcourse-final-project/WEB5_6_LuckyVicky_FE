@@ -26,10 +26,14 @@ export default function NoticeEditor({
   value,
   onChange,
   onUploadImage, // (file) => Promise<string>  // 업로드 후 URL 반환
+  minHeight = 280,
+  maxHeight,
 }: {
   value?: string; // 초기 HTML
   onChange: (html: string) => void;
   onUploadImage: (file: File) => Promise<string>;
+  minHeight?: number;
+  maxHeight?: number;
 }) {
   const editor = useEditor({
     extensions: [
@@ -158,7 +162,12 @@ export default function NoticeEditor({
       {/* Editor body */}
       <EditorContent
         editor={editor}
-        className="min-h-[280px] bg-white p-3 focus:outline-none [&_*]:leading-7"
+        className="bg-white p-3 focus:outline-none [&_*]:leading-7"
+        style={{
+          minHeight,
+          maxHeight,                
+          overflowY: maxHeight ? 'auto' : undefined, // 최대 높이 있을 때만 스크롤
+        }}
       />
     </div>
   );
