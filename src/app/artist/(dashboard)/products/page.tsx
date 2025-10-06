@@ -149,7 +149,6 @@ export default function ProductsPage() {
         onClose={() => setOpenModal(false)}
         onSubmit={handleCreate}
         initialBrand="내 브랜드"   // 로그인한 작가 브랜드로 대체
-        initialBizInfo={{}}        // 프로필 기본값 있으면 넣기
         onLoadBizFromProfile={loadBizFromProfile}
       />
     </>

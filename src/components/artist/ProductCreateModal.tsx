@@ -5,6 +5,7 @@ import X from '@/assets/icon/x.svg';
 import Paperclip from '@/assets/icon/paperclip2.svg';
 import NoticeEditor from '@/components/editor/NoticeEditor';
 import { uploadProductImages, UploadType } from '@/services/products';
+import { Category, fetchCategoriesClient } from '@/services/categories';
 
 export const AVAILABLE_TAGS = ['심플', '비비드', '모던', '레트로', '키치', '내추럴'] as const;
 export type Tag = typeof AVAILABLE_TAGS[number];
@@ -72,8 +73,15 @@ export default function ProductCreateModal({
   const [brand] = useState(initialBrand);
   const [title, setTitle] = useState('');
   const [modelName, setModelName] = useState('');
+
   const [category1, setCategory1] = useState('');
   const [category2, setCategory2] = useState('');
+
+  // 카테고리 트리 상태
+  const [catTree, setCatTree] = useState<Category[]>([]);
+  const [catsLoading, setCatsLoading] = useState(false);
+  const [catsErr, setCatsErr] = useState<string | null>(null);
+
   const [size, setSize] = useState('');
   const [material, setMaterial] = useState('');
   const [origin, setOrigin] = useState('');
@@ -177,6 +185,30 @@ const handleUploadImages = async () => {
     alert((e as Error).message || '이미지 업로드 실패');
   }
 };
+
+// 모달이 열릴 때마다 최신 카테고리 트리 로드
+  useEffect(() => {
+    if (!open) return;
+    (async () => {
+      setCatsLoading(true);
+      setCatsErr(null);
+      try {
+        const data = await fetchCategoriesClient();
+        setCatTree(data);
+      } catch (e: any) {
+        setCatsErr(e?.message || '카테고리 로드 실패');
+        setCatTree([]);
+      } finally {
+        setCatsLoading(false);
+      }
+    })();
+  }, [open]);
+
+  // 선택된 상위 카테고리에 따른 하위 카테고리
+  const subOptions = (() => {
+    const root = catTree.find((c) => String(c.id) === category1);
+    return root?.subCategories ?? [];
+  })()
 
   // body scroll lock
   useEffect(() => {
@@ -298,28 +330,42 @@ const handleUploadImages = async () => {
 
               <div className="flex items-center gap-3">
                 <span className="w-28 shrink-0 text-sm">카테고리</span>
+                {/* 상위 카테고리 */}
                 <select
                   value={category1}
-                  onChange={(e) => setCategory1(e.target.value)}
+                  onChange={(e) => {
+                    setCategory1(e.target.value);
+                    setCategory2('');
+                  }}
+                  disabled={catsLoading || !!catsErr}
                   className="rounded border border-[var(--color-gray-200)] py-2 px-3 text-sm"
                 >
-                  <option value="">대분류 선택</option>
-                  <option>스티커</option>
-                  <option>메모지</option>
-                  <option>노트</option>
-                  <option>액세서리</option>
-                  <option>기타문구류</option>
-                  <option>디지털문구</option>
+                  <option value="">
+                    {catsLoading ? '불러오는 중…' : catsErr ? '불러오기 실패' : '상위 카테고리'}
+                  </option>
+                  {!catsLoading && !catsErr &&
+                    catTree.map((c: Category) => (
+                      <option key={c.id} value={String(c.id)}>
+                        {c.categoryName}
+                      </option>
+                    ))}
                 </select>
+                 {/* 하위 카테고리 */}
                 <select
                   value={category2}
                   onChange={(e) => setCategory2(e.target.value)}
+                  disabled={!category1 || catsLoading || !!catsErr}
                   className="rounded border border-[var(--color-gray-200)] py-2 px-3 text-sm"
                 >
-                  <option value="">소분류 선택</option>
-                  <option>스티커</option>
-                  <option>노트</option>
-                  <option>액세서리</option>
+                  <option value="">
+                    {!category1 ? '하위 카테고리' : subOptions.length ? '하위 카테고리' : '하위 카테고리 없음'}
+                  </option>
+                  {category1 &&
+                    subOptions.map((s: Category) => (
+                      <option key={s.id} value={String(s.id)}>
+                        {s.categoryName}
+                      </option>
+                    ))}
                 </select>
               </div>
 
