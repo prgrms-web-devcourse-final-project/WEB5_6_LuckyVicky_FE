@@ -12,9 +12,7 @@ export default function CategoriesPage() {
 
       <section className="rounded-lg border p-4">
         <h2 className="mb-3 text-base font-medium">카테고리 목록</h2>
-        <p className="text-sm text-gray-600">
-          <CategoryList />
-        </p>
+        <CategoryList />
       </section>
     </div>
   );
