@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import X from '@/assets/icon/x.svg';
 import Paperclip from '@/assets/icon/paperclip2.svg';
 import NoticeEditor from '@/components/editor/NoticeEditor';
+import { uploadProductImages, UploadType } from '@/services/products';
 
 export const AVAILABLE_TAGS = ['심플', '비비드', '모던', '레트로', '키치', '내추럴'] as const;
 export type Tag = typeof AVAILABLE_TAGS[number];
@@ -122,6 +123,60 @@ export default function ProductCreateModal({
   // ----- 에디터/파일 -----
   const [editorValue, setEditorValue] = useState('');
   const [files, setFiles] = useState<File[]>([]);
+  const [fileTypes, setFileTypes] = useState<UploadType[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
+
+  // files가 바뀔 때마다 미리보기 URL 생성/해제
+useEffect(() => {
+  // 이미지 파일만 createObjectURL, 그 외는 빈 문자열
+  const urls = files.map((f) => (f.type?.startsWith('image/') ? URL.createObjectURL(f) : ''));
+  setPreviews(urls);
+
+  return () => {
+    urls.forEach((u) => {
+      if (u) URL.revokeObjectURL(u);
+    });
+  };
+}, [files]);
+
+const handleSelectFiles = (incoming: File[]) => {
+  if (incoming.length === 0) return;
+
+  // 중복 방지(이름+크기+수정시각 기준)
+  const key = (f: File) => `${f.name}-${f.size}-${f.lastModified}`;
+  const dedup = incoming.filter((nf) => !files.some((ef) => key(ef) === key(nf)));
+
+  if (dedup.length === 0) return;
+
+  // files 누적
+  const nextFiles = [...files, ...dedup];
+  setFiles(nextFiles);
+
+  // types 누적: 전체 목록이 비어있을 때 첫 새 파일만 MAIN, 나머지는 ADDITIONAL
+  const defaults = dedup.map((_, i) =>
+    files.length === 0 && i === 0 ? 'MAIN' : 'ADDITIONAL'
+  );
+  setFileTypes((prev) => [...prev, ...defaults]);
+}
+
+const handleChangeFileType = (index: number, newType: UploadType) => {
+  setFileTypes((prev) => {
+    const updated = [...prev];
+    updated[index] = newType;
+    return updated;
+  });
+};
+
+const handleUploadImages = async () => {
+  if (files.length === 0) return alert('파일을 선택하세요.');
+
+  try {
+    const res = await uploadProductImages(files, fileTypes);
+    alert(res.msg || '이미지 업로드 성공');
+  } catch (e) {
+    alert((e as Error).message || '이미지 업로드 실패');
+  }
+};
 
   // body scroll lock
   useEffect(() => {
@@ -680,7 +735,12 @@ export default function ProductCreateModal({
                   type="file"
                   multiple
                   className="sr-only"
-                  onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
+                  onChange={(e) => {
+                  const list = Array.from(e.target.files ?? []);
+                  handleSelectFiles(list);
+                  // 같은 파일을 다시 선택할 수 있도록 초기화
+                  e.currentTarget.value = '';
+                  }}
                 />
                 <input
                   type="text"
@@ -699,7 +759,10 @@ export default function ProductCreateModal({
                 {files.length > 0 ? (
                   <button
                     type="button"
-                    onClick={() => setFiles([])}
+                    onClick={() => {
+                      setFiles([]);
+                      setFileTypes([]); // 함께 초기화
+                    }}
                     className="absolute right-2 top-1/2 -translate-y-1/2 rounded border border-[var(--color-primary)] px-3 py-1 text-sm leading-none transition hover:bg-primary-20"
                   >
                     파일 삭제
@@ -715,6 +778,56 @@ export default function ProductCreateModal({
               </div>
             </div>
           </section>
+          {/* 파일 타입 지정 + 업로드 버튼 */}
+          {files.length > 0 && (
+            <div className="mt-4 space-y-3">
+              <div className="space-y-2">
+                <p className="text-sm font-medium">업로드할 파일 타입</p>
+                {files.map((file, idx) => (
+                  <div key={`${file.name}-${file.size}-${idx}`} className="flex items-center gap-3 text-sm">
+                    {/* 미리보기 */}
+                    <div className="w-10 h-10 rounded overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
+                      {previews[idx] ? (
+                        <img
+                          src={previews[idx]}
+                          alt={file.name}
+                          className="w-full h-full object-cover"
+                          draggable={false}
+                        />
+                      ) : (
+                        <span className="text-[10px] text-gray-500 px-1 text-center leading-tight">미리보기 없음</span>
+                      )}
+                    </div>
+
+                    {/* 파일명 */}
+                    <span className="flex-1 truncate">{file.name}</span>
+
+                    {/* 타입 선택 */}
+                    <select
+                      value={fileTypes[idx]}
+                      onChange={(e) => handleChangeFileType(idx, e.target.value as UploadType)}
+                      className="rounded border border-[var(--color-gray-200)] py-1.5 px-2"
+                    >
+                      <option value="MAIN">대표 이미지</option>
+                      <option value="ADDITIONAL">추가 이미지</option>
+                      <option value="THUMBNAIL">썸네일</option>
+                      <option value="DOCUMENT">문서</option>
+                    </select>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={handleUploadImages}
+                  className="text-sm border border-[var(--color-primary)] rounded-md px-3 py-2 hover:bg-primary-20"
+                >
+                  업로드
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* 푸터 */}
