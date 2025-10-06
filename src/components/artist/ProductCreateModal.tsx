@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import X from '@/assets/icon/x.svg';
 import Paperclip from '@/assets/icon/paperclip2.svg';
 import NoticeEditor from '@/components/editor/NoticeEditor';
@@ -9,11 +9,11 @@ import { fetchCategoriesClient } from '@/lib/server/categories.client';
 import { Category } from '@/types/category';
 
 export const AVAILABLE_TAGS = ['심플', '비비드', '모던', '레트로', '키치', '내추럴'] as const;
-export type Tag = typeof AVAILABLE_TAGS[number];
+export type Tag = (typeof AVAILABLE_TAGS)[number];
 export type ShippingType = 'FREE' | 'PAID' | 'CONDITIONAL';
 
 export type ProductOption = { id: string; name: string; extraPrice?: number; stock?: number };
-export type ProductAddon  = { id: string; name: string; extraPrice?: number; stock?: number };
+export type ProductAddon = { id: string; name: string; extraPrice?: number; stock?: number };
 
 export type ProductCreatePayload = {
   brand: string;
@@ -32,8 +32,8 @@ export type ProductCreatePayload = {
   bundleShipping: boolean;
   shipping: {
     type: ShippingType;
-    fee: number;               // FREE면 0
-    freeThreshold: number | null; // CONDITIONAL만 사용
+    fee: number;
+    freeThreshold: number | null;
     jejuExtraFee: number;
   };
   plannedSale: { startAt: string; endAt: string } | null;
@@ -50,12 +50,8 @@ type Props = {
   open: boolean;
   onClose: () => void;
   onSubmit: (payload: ProductCreatePayload) => Promise<void> | void;
-
-  // 상위에서 내려줄 수 있는 초기값(브랜드/프로필 불러오기 등)
   initialBrand?: string;
   initialBizInfo?: { companyName?: string; bizNumber?: string; ceoName?: string };
-
-  // “사업자 정보 불러오기” 로직을 외부에서 처리하고 싶으면 전달
   onLoadBizFromProfile?: () => Promise<{ companyName?: string; bizNumber?: string; ceoName?: string } | void> | void;
 };
 
@@ -67,9 +63,6 @@ export default function ProductCreateModal({
   initialBizInfo,
   onLoadBizFromProfile,
 }: Props) {
-  // 모달 미표시 시 렌더 차단
-  if (!open) return null;
-
   // ----- 기본 정보 -----
   const [brand] = useState(initialBrand);
   const [title, setTitle] = useState('');
@@ -136,58 +129,54 @@ export default function ProductCreateModal({
   const [previews, setPreviews] = useState<string[]>([]);
 
   // files가 바뀔 때마다 미리보기 URL 생성/해제
-useEffect(() => {
-  // 이미지 파일만 createObjectURL, 그 외는 빈 문자열
-  const urls = files.map((f) => (f.type?.startsWith('image/') ? URL.createObjectURL(f) : ''));
-  setPreviews(urls);
+  useEffect(() => {
+    const urls = files.map((f) => (f.type?.startsWith('image/') ? URL.createObjectURL(f) : ''));
+    setPreviews(urls);
+    return () => {
+      urls.forEach((u) => {
+        if (u) URL.revokeObjectURL(u);
+      });
+    };
+  }, [files]);
 
-  return () => {
-    urls.forEach((u) => {
-      if (u) URL.revokeObjectURL(u);
+  const handleSelectFiles = (incoming: File[]) => {
+    if (incoming.length === 0) return;
+
+    // 중복 방지(이름+크기+수정시각 기준)
+    const key = (f: File) => `${f.name}-${f.size}-${f.lastModified}`;
+    const dedup = incoming.filter((nf) => !files.some((ef) => key(ef) === key(nf)));
+
+    if (dedup.length === 0) return;
+
+    // files 누적
+    const nextFiles = [...files, ...dedup];
+    setFiles(nextFiles);
+
+    // types 누적: 전체 목록이 비어있을 때 첫 새 파일만 MAIN, 나머지는 ADDITIONAL
+    const defaults = dedup.map((_, i) => (files.length === 0 && i === 0 ? 'MAIN' : 'ADDITIONAL'));
+    setFileTypes((prev) => [...prev, ...defaults]);
+  };
+
+  const handleChangeFileType = (index: number, newType: UploadType) => {
+    setFileTypes((prev) => {
+      const updated = [...prev];
+      updated[index] = newType;
+      return updated;
     });
   };
-}, [files]);
 
-const handleSelectFiles = (incoming: File[]) => {
-  if (incoming.length === 0) return;
+  const handleUploadImages = async () => {
+    if (files.length === 0) return alert('파일을 선택하세요.');
+    try {
+      const res = await uploadProductImages(files, fileTypes);
+      alert(res.msg || '이미지 업로드 성공');
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : '이미지 업로드 실패';
+      alert(msg);
+    }
+  };
 
-  // 중복 방지(이름+크기+수정시각 기준)
-  const key = (f: File) => `${f.name}-${f.size}-${f.lastModified}`;
-  const dedup = incoming.filter((nf) => !files.some((ef) => key(ef) === key(nf)));
-
-  if (dedup.length === 0) return;
-
-  // files 누적
-  const nextFiles = [...files, ...dedup];
-  setFiles(nextFiles);
-
-  // types 누적: 전체 목록이 비어있을 때 첫 새 파일만 MAIN, 나머지는 ADDITIONAL
-  const defaults = dedup.map((_, i) =>
-    files.length === 0 && i === 0 ? 'MAIN' : 'ADDITIONAL'
-  );
-  setFileTypes((prev) => [...prev, ...defaults]);
-}
-
-const handleChangeFileType = (index: number, newType: UploadType) => {
-  setFileTypes((prev) => {
-    const updated = [...prev];
-    updated[index] = newType;
-    return updated;
-  });
-};
-
-const handleUploadImages = async () => {
-  if (files.length === 0) return alert('파일을 선택하세요.');
-
-  try {
-    const res = await uploadProductImages(files, fileTypes);
-    alert(res.msg || '이미지 업로드 성공');
-  } catch (e) {
-    alert((e as Error).message || '이미지 업로드 실패');
-  }
-};
-
-// 모달이 열릴 때마다 최신 카테고리 트리 로드
+  // 모달이 열릴 때마다 최신 카테고리 트리 로드
   useEffect(() => {
     if (!open) return;
     (async () => {
@@ -196,8 +185,9 @@ const handleUploadImages = async () => {
       try {
         const data = await fetchCategoriesClient();
         setCatTree(data);
-      } catch (e: any) {
-        setCatsErr(e?.message || '카테고리 로드 실패');
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : '카테고리 로드 실패';
+        setCatsErr(msg);
         setCatTree([]);
       } finally {
         setCatsLoading(false);
@@ -206,10 +196,10 @@ const handleUploadImages = async () => {
   }, [open]);
 
   // 선택된 상위 카테고리에 따른 하위 카테고리
-  const subOptions = (() => {
+  const subOptions = useMemo(() => {
     const root = catTree.find((c) => String(c.id) === category1);
     return root?.subCategories ?? [];
-  })()
+  }, [catTree, category1]);
 
   // body scroll lock
   useEffect(() => {
@@ -234,8 +224,7 @@ const handleUploadImages = async () => {
   const handleSubmit = async () => {
     if (!title.trim()) return alert('상품명을 입력해주세요.');
     if (price < 0) return alert('판매가는 0 이상이어야 합니다.');
-    if (shippingType === 'CONDITIONAL' && freeThreshold <= 0)
-      return alert('조건부 무료배송 기준 금액을 입력해주세요.');
+    if (shippingType === 'CONDITIONAL' && freeThreshold <= 0) return alert('조건부 무료배송 기준 금액을 입력해주세요.');
 
     const payload: ProductCreatePayload = {
       brand,
@@ -271,6 +260,9 @@ const handleUploadImages = async () => {
     await onSubmit(payload);
     onClose();
   };
+
+  // 🔴 훅 선언 이후에 렌더 분기(ESLint: hooks after early return 방지)
+  if (!open) return null;
 
   return (
     <div

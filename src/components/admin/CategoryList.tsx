@@ -76,11 +76,12 @@ export default async function CategoryList() {
         <Tree nodes={data} />
       </div>
     );
-  } catch (e: any) {
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : String(e);
     return (
       <div className="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">
         카테고리 목록을 불러오지 못했습니다.
-        <div className="mt-1 whitespace-pre-wrap text-xs opacity-80">{String(e?.message ?? e)}</div>
+        <div className="mt-1 whitespace-pre-wrap text-xs opacity-80">{message}</div>
       </div>
     );
   }

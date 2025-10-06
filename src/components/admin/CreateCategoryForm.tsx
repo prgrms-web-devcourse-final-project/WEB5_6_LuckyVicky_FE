@@ -13,7 +13,7 @@ export default function CreateCategoryForm() {
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
-  const onSubmit = async (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setMsg(null); setErr(null); setLoading(true);
     try {
@@ -24,8 +24,9 @@ export default function CreateCategoryForm() {
       setMsg(`등록 성공: [${data.id}] ${data.categoryName}`);
       setName(''); setParentId('');
       router.refresh(); // 목록 즉시 갱신
-    } catch (e: any) {
-      setErr(e?.message || '등록 실패');
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : '등록 실패';
+      setErr(message);
     } finally {
       setLoading(false);
     }
