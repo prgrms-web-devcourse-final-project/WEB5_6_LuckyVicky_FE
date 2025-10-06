@@ -40,7 +40,7 @@ export default function CreateCategoryForm() {
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="w-full rounded border px-3 py-2"
-          placeholder="예) 스티커, 키링"
+          placeholder="예) 스티커"
           required
         />
       </div>
