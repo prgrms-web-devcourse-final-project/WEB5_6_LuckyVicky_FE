@@ -5,7 +5,8 @@ import X from '@/assets/icon/x.svg';
 import Paperclip from '@/assets/icon/paperclip2.svg';
 import NoticeEditor from '@/components/editor/NoticeEditor';
 import { uploadProductImages, UploadType } from '@/services/products';
-import { Category, fetchCategoriesClient } from '@/services/categories';
+import { fetchCategoriesClient } from '@/lib/server/categories.client';
+import { Category } from '@/types/category';
 
 export const AVAILABLE_TAGS = ['심플', '비비드', '모던', '레트로', '키치', '내추럴'] as const;
 export type Tag = typeof AVAILABLE_TAGS[number];

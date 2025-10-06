@@ -1,20 +1,4 @@
-
-export type CategoryPayload = {
-  categoryName: string;
-  parentId: number | null;
-};
-
-export type Category = {
-  id: number;
-  categoryName: string;
-  subCategories: Category[];
-};
-
-type ApiResponse<T> = {
-  resultCode: string;
-  msg: string;
-  data: T;
-};
+import { ApiResponse, Category, CategoryPayload } from "@/types/category";
 
 // 카테고리 등록
 export async function createCategory(payload: CategoryPayload): Promise<Category> {
