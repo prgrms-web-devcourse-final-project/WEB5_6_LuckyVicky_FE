@@ -98,6 +98,55 @@ export async function login(payload: LoginPayload): Promise<LoginResponse> {
   return data;
 }
 
+export type SessionResponse = {
+  selectedRole?: string | null;
+  role?: string | null;
+  availableRoles?: unknown;
+  roles?: unknown;
+  authorities?: unknown;
+  accessToken?: string;
+  refreshToken?: string;
+  [key: string]: unknown;
+};
+
+export async function fetchSession(): Promise<SessionResponse | null> {
+  const baseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL ?? '').replace(/\/+$/, '');
+
+  try {
+    const res = await fetch(`${baseUrl}/api/users/me`, {
+      method: 'GET',
+      credentials: 'include',
+      cache: 'no-store',
+    });
+
+    if (res.status === 401 || res.status === 403 || res.status === 204) {
+      return null;
+    }
+    if (!res.ok) {
+      const text = await res.text().catch(() => '세션 정보를 불러오지 못했습니다.');
+      throw new Error(text);
+    }
+
+    const payload = await res.json().catch(() => null);
+    if (!payload || typeof payload !== 'object') return null;
+
+    const sessionData =
+      'data' in payload && payload.data && typeof payload.data === 'object'
+        ? (payload as { data: SessionResponse }).data
+        : (payload as SessionResponse);
+
+    if (!sessionData || typeof sessionData !== 'object') {
+      return null;
+    }
+
+    return sessionData;
+  } catch (error) {
+    console.error('fetchSession error', error);
+    throw new Error('세션 정보를 불러오지 못했습니다.');
+  }
+}
+
+
 // 중복확인
 export type DuplicateResponse = {
   resultCode?: string;
