@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState, type Key, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useState, type Key, type ReactNode } from 'react';
 import Link from 'next/link';
 import AdminDataTable, {
   AdminTableColumn,
@@ -10,22 +10,15 @@ import Button from '@/components/Button';
 import SearchIcon from '@/assets/icon/search.svg';
 import Modal from '@/components/Modal';
 import DefaultProfile from '@/assets/icon/default_profile.svg';
-
-type Applicant = {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  businessNumber?: string;
-  businessDocument?: string;
-  commerceNumber?: string;
-  commerceDocument?: string;
-  address?: string;
-  productCategories: string[];
-  snsHandle?: string;
-  portfolio?: { label: string; url: string };
-  appliedAt: string;
-};
+import { useToast } from '@/components/ToastProvider';
+import { approveFundingApplication, rejectFundingApplication } from '@/services/adminFundingApproval';
+import {
+  fetchArtistApplications,
+  normalizeArtistApplication,
+  type ArtistApplication,
+} from '@/services/adminArtistApplications';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
+import { useAuthStore } from '@/stores/authStore';
 
 type TableRow = {
   id: string;
@@ -35,115 +28,114 @@ type TableRow = {
 };
 
 const columns: AdminTableColumn<TableRow>[] = [
-  { key: 'id', header: '작가 ID', align: 'center', sortable: true },
-  { key: 'name', header: '작가명', width: 'w-[440px]', sortable: true },
+  { key: 'id', header: '신청 ID', align: 'center', sortable: true },
+  { key: 'name', header: '작가명', width: 'w-[320px]', sortable: true },
   { key: 'createdAt', header: '신청일자', align: 'center', sortable: true },
   { key: 'detail', header: '상세보기', align: 'center' },
 ];
 
-const applicants: Applicant[] = [
-  {
-    id: 'abc136',
-    name: '작가명입니다',
-    email: 'abc123@abc.com',
-    phone: '010-1234-5678',
-    businessNumber: '123-45-67890',
-    businessDocument: '/documents/business-license.pdf',
-    commerceNumber: '2025-서울강남-1234',
-    commerceDocument: '/documents/commerce-license.pdf',
-    address: '서울특별시 강남구 테헤란로 123 2층',
-    productCategories: ['스티커', '메모지'],
-    snsHandle: '@morimori_official',
-    portfolio: { label: '포트폴리오.pdf', url: '/documents/portfolio.pdf' },
-    appliedAt: '2025-09-18',
-  },
-  {
-    id: 'abc135',
-    name: '작가명입니다',
-    email: 'creator135@example.com',
-    phone: '010-4567-8910',
-    businessNumber: '321-54-09876',
-    businessDocument: '/documents/business-license-135.pdf',
-    commerceNumber: '2025-서울성동-0456',
-    commerceDocument: '/documents/commerce-license-135.pdf',
-    address: '서울특별시 성동구 왕십리로 45 3층',
-    productCategories: ['노트', '엽서'],
-    snsHandle: '@creator_135',
-    portfolio: {
-      label: 'creator135_portfolio.pdf',
-      url: '/documents/creator135_portfolio.pdf',
-    },
-    appliedAt: '2025-09-17',
-  },
-  {
-    id: 'abc134',
-    name: '작가명입니다',
-    email: 'artist134@example.com',
-    phone: '010-9876-5432',
-    businessNumber: '555-66-77777',
-    address: '부산광역시 해운대구 센텀대로 12 5층',
-    commerceNumber: '2025-부산해운대-0777',
-    productCategories: ['굿즈', '폰케이스'],
-    snsHandle: '@artist134',
-    appliedAt: '2025-09-16',
-  },
-  {
-    id: 'abc133',
-    name: '작가명입니다',
-    email: 'maker133@example.com',
-    phone: '010-2222-3333',
-    businessNumber: '444-55-66666',
-    address: '대전광역시 유성구 대학로 123 1층',
-    commerceNumber: '2025-대전유성-0123',
-    productCategories: ['문구', '키링'],
-    snsHandle: '@maker133',
-    appliedAt: '2025-09-15',
-  },
-  {
-    id: 'abc132',
-    name: '작가명입니다',
-    email: 'designer132@example.com',
-    phone: '010-3333-4444',
-    businessNumber: '222-33-44444',
-    address: '인천광역시 연수구 송도과학로 27 7층',
-    commerceNumber: '2025-인천연수-0420',
-    productCategories: ['패브릭', '디지털굿즈'],
-    snsHandle: '@designer132',
-    appliedAt: '2025-09-14',
-  },
-  {
-    id: 'abc131',
-    name: '작가명입니다',
-    email: 'crafter131@example.com',
-    phone: '010-1111-9999',
-    businessNumber: '111-22-33333',
-    address: '서울특별시 마포구 양화로 55 9층',
-    commerceNumber: '2025-서울마포-0555',
-    productCategories: ['캔들', '향수'],
-    snsHandle: '@crafter131',
-    appliedAt: '2025-09-13',
-  },
-  {
-    id: 'abc130',
-    name: '작가명입니다',
-    email: 'illustrator130@example.com',
-    phone: '010-7777-8888',
-    businessNumber: '999-88-77777',
-    address: '경기도 성남시 분당구 불정로 10 20층',
-    commerceNumber: '2025-경기성남-0202',
-    productCategories: ['일러스트', '프린트'],
-    snsHandle: '@illustrator130',
-    appliedAt: '2025-09-12',
-  },
-];
-
 export default function ApprovalsPage() {
-  const [sortKey, setSortKey] = useState<keyof TableRow | undefined>(undefined);
-  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  useAuthGuard({ allowedRoles: ['ADMIN'], redirectTo: '/admin/login' });
+
+  const [sortKey, setSortKey] = useState<keyof TableRow | undefined>('createdAt');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedApplicant, setSelectedApplicant] = useState<Applicant | null>(
-    null,
+  const [applications, setApplications] = useState<ArtistApplication[]>([]);
+  const [selectedApplication, setSelectedApplication] = useState<ArtistApplication | null>(null);
+  const [rejectionModal, setRejectionModal] = useState<{ open: boolean; applicationId: number | null }>({ open: false, applicationId: null });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const toast = useToast();
+  const accessToken = useAuthStore((state) => state.accessToken);
+
+  useEffect(() => {
+    if (!accessToken) return;
+
+    let active = true;
+
+    const load = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const summaries = await fetchArtistApplications(
+          { status: 'PENDING', page: 0, size: 50 },
+          { accessToken },
+        );
+        if (!active) return;
+        setApplications(summaries.map(normalizeArtistApplication));
+      } catch (err) {
+        if (!active) return;
+        const message = err instanceof Error ? err.message : '입점 신청 목록을 불러오지 못했습니다.';
+        setError(message);
+        setApplications([]);
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void load();
+
+    return () => {
+      active = false;
+    };
+  }, [accessToken]);
+
+  const filteredApplications = useMemo(() => {
+    const keyword = searchTerm.trim().toLowerCase();
+    if (!keyword) return applications;
+    return applications.filter((application) => {
+      return (
+        application.applicantId.toLowerCase().includes(keyword) ||
+        application.artistName.toLowerCase().includes(keyword)
+      );
+    });
+  }, [applications, searchTerm]);
+
+  const sortedApplications = useMemo(() => {
+    const list = [...filteredApplications];
+    if (!sortKey) return list;
+
+    const compare = (a: ArtistApplication, b: ArtistApplication) => {
+      switch (sortKey) {
+        case 'id':
+          return Number(a.applicationId) - Number(b.applicationId);
+        case 'name':
+          return a.artistName.localeCompare(b.artistName);
+        case 'createdAt':
+        default:
+          return new Date(a.appliedAt).getTime() - new Date(b.appliedAt).getTime();
+      }
+    };
+
+    list.sort(compare);
+    if (sortDirection === 'desc') list.reverse();
+    return list;
+  }, [filteredApplications, sortDirection, sortKey]);
+
+  const tableRows = useMemo<TableRow[]>(
+    () =>
+      sortedApplications.map((application) => ({
+        id: String(application.applicationId),
+        name: application.artistName,
+        createdAt: application.appliedAt,
+        detail: (
+          <button
+            type="button"
+            className="text-primary underline"
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              setSelectedApplication(application);
+            }}
+          >
+            상세보기
+          </button>
+        ),
+      })),
+    [sortedApplications],
   );
 
   const handleSelectionChange = (keys: Key[]) => {
@@ -155,35 +147,95 @@ export default function ApprovalsPage() {
     setSortDirection(direction);
   };
 
-  const openModal = useCallback((applicant: Applicant) => {
-    setSelectedApplicant(applicant);
-  }, []);
+  useEffect(() => {
+    setSelectedIds((prev) => prev.filter((id) => sortedApplications.some((application) => String(application.applicationId) === id)));
+  }, [sortedApplications]);
 
-  const closeModal = useCallback(() => {
-    setSelectedApplicant(null);
-  }, []);
+  const approveSelected = useCallback(async () => {
+    if (!selectedIds.length) {
+      toast.error('승인할 신청을 선택해 주세요.');
+      return;
+    }
+    if (!accessToken) {
+      toast.error('인증 정보가 없습니다. 다시 로그인해 주세요.');
+      return;
+    }
+    try {
+      await Promise.all(
+        selectedIds.map((id) => approveFundingApplication(Number(id), { accessToken })),
+      );
+      toast.success('승인이 완료되었습니다.');
+      setApplications((prev) => prev.filter((application) => !selectedIds.includes(String(application.applicationId))));
+      setSelectedIds([]);
+      setSelectedApplication((current) =>
+        current && selectedIds.includes(String(current.applicationId)) ? null : current,
+      );
+    } catch (err) {
+      const message = err instanceof Error ? err.message : '입점 승인에 실패했습니다.';
+      toast.error(message);
+    }
+  }, [accessToken, selectedIds, toast]);
 
-  const tableRows = useMemo<TableRow[]>(
-    () =>
-      applicants.map((applicant) => ({
-        id: applicant.id,
-        name: applicant.name,
-        createdAt: applicant.appliedAt,
-        detail: (
-          <button
-            type="button"
-            className="text-primary underline"
-            onClick={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              openModal(applicant);
-            }}
-          >
-            상세보기
-          </button>
-        ),
-      })),
-    [openModal],
+  const rejectSelected = useCallback(async (reason: string) => {
+    if (!selectedIds.length) {
+      toast.error('거절할 신청을 선택해 주세요.');
+      return;
+    }
+    if (!accessToken) {
+      toast.error('인증 정보가 없습니다. 다시 로그인해 주세요.');
+      return;
+    }
+    try {
+      await Promise.all(
+        selectedIds.map((id) => rejectFundingApplication(Number(id), reason, { accessToken })),
+      );
+      toast.success('거절이 완료되었습니다.');
+      setApplications((prev) => prev.filter((application) => !selectedIds.includes(String(application.applicationId))));
+      setSelectedIds([]);
+      setSelectedApplication((current) =>
+        current && selectedIds.includes(String(current.applicationId)) ? null : current,
+      );
+    } catch (err) {
+      const message = err instanceof Error ? err.message : '입점 거절에 실패했습니다.';
+      toast.error(message);
+    }
+  }, [accessToken, selectedIds, toast]);
+
+  const rejectSingle = useCallback(async (applicationId: number, reason: string) => {
+    if (!accessToken) {
+      toast.error('인증 정보가 없습니다. 다시 로그인해 주세요.');
+      return;
+    }
+    try {
+      await rejectFundingApplication(applicationId, reason, { accessToken });
+      toast.success('거절이 완료되었습니다.');
+      setApplications((prev) => prev.filter((application) => application.applicationId !== applicationId));
+      setSelectedIds((prev) => prev.filter((id) => Number(id) !== applicationId));
+      setSelectedApplication((current) => (current && current.applicationId === applicationId ? null : current));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : '입점 거절에 실패했습니다.';
+      toast.error(message);
+    }
+  }, [accessToken, toast]);
+
+  const approveSingle = useCallback(
+    async (applicationId: number) => {
+      if (!accessToken) {
+        toast.error('인증 정보가 없습니다. 다시 로그인해 주세요.');
+        return;
+      }
+      try {
+        await approveFundingApplication(applicationId, { accessToken });
+        toast.success('승인이 완료되었습니다.');
+        setApplications((prev) => prev.filter((application) => application.applicationId !== applicationId));
+        setSelectedIds((prev) => prev.filter((id) => Number(id) !== applicationId));
+        setSelectedApplication((current) => (current && current.applicationId === applicationId ? null : current));
+      } catch (err) {
+        const message = err instanceof Error ? err.message : '입점 승인에 실패했습니다.';
+        toast.error(message);
+      }
+    },
+    [accessToken, toast],
   );
 
   return (
@@ -191,10 +243,30 @@ export default function ApprovalsPage() {
       <div className="mb-5 flex items-center justify-between">
         <h3 className="text-2xl font-bold">입점 승인</h3>
         <div className="flex gap-2">
-          <Button variant="outline">입점 거절</Button>
-          <Button variant="primary">입점 승인</Button>
+          <Button
+            variant="outline"
+            onClick={() => {
+              if (!selectedIds.length) {
+                toast.error('거절할 신청을 선택해 주세요.');
+                return;
+              }
+              setRejectionModal({ open: true, applicationId: null });
+            }}
+            disabled={selectedIds.length === 0}
+          >
+            입점 거절
+          </Button>
+          <Button variant="primary" onClick={approveSelected} disabled={selectedIds.length === 0}>
+            입점 승인
+          </Button>
         </div>
       </div>
+
+      {error ? (
+        <div className="mb-4 rounded-lg border border-rose-300 bg-rose-50 p-4 text-sm text-rose-700">
+          {error}
+        </div>
+      ) : null}
 
       <AdminDataTable
         columns={columns}
@@ -202,32 +274,17 @@ export default function ApprovalsPage() {
         rowKey={(row) => row.id}
         sortKey={sortKey as string | undefined}
         sortDirection={sortDirection}
-        onSortChange={(key, direction) => handleSortChange(key, direction)}
+        onSortChange={handleSortChange}
         selectedRowKeys={selectedIds}
         onSelectionChange={handleSelectionChange}
+        emptyText={loading ? '입점 신청을 불러오는 중입니다…' : '대기 중인 입점 신청이 없습니다.'}
       />
 
       <div className="relative mt-6 flex items-center justify-center">
-        <nav className="flex items-center gap-4 text-sm text-[var(--color-gray-700)]">
-          <button className="px-2 py-1 hover:text-primary" aria-label="Prev">
-            ‹
-          </button>
-          {[1, 2, 3, 4, 5].map((n) => (
-            <button
-              key={n}
-              className={`h-8 w-8 rounded-full text-center leading-8 ${
-                n === 1 ? 'font-semibold text-primary' : 'hover:text-primary'
-              }`}
-            >
-              {n}
-            </button>
-          ))}
-          <button className="px-2 py-1 hover:text-primary" aria-label="Next">
-            ›
-          </button>
-        </nav>
-
-        <form className="absolute right-0 flex h-10 w-[240px] items-center rounded-[12px] border border-primary px-4 text-sm text-[var(--color-gray-700)]">
+        <form
+          className="absolute right-0 flex h-10 w-[240px] items-center rounded-[12px] border border-primary px-4 text-sm text-[var(--color-gray-700)]"
+          onSubmit={(event) => event.preventDefault()}
+        >
           <input
             type="search"
             value={searchTerm}
@@ -235,24 +292,62 @@ export default function ApprovalsPage() {
             placeholder="검색어를 입력하세요"
             className="h-full flex-1 bg-transparent pr-8 outline-none placeholder:text-[var(--color-gray-400)]"
           />
-          <SearchIcon
-            className="absolute right-4 h-4 w-4 text-primary"
-            aria-hidden
-          />
+          <SearchIcon className="absolute right-4 h-4 w-4 text-primary" aria-hidden />
         </form>
       </div>
 
-      {selectedApplicant ? (
+
+      {rejectionModal.open ? (
         <Modal
-          title="입점 신청 작가 상세보기"
-          onClose={closeModal}
+          title="거절 사유 입력"
+          onClose={() => setRejectionModal({ open: false, applicationId: null })}
+          maxWidthClassName="max-w-[480px]"
+          footer={null}
+        >
+          <RejectForm
+            onSubmit={async (reason) => {
+              try {
+                if (rejectionModal.applicationId !== null) {
+                  await rejectSingle(rejectionModal.applicationId, reason);
+                } else {
+                  await rejectSelected(reason);
+                }
+                setRejectionModal({ open: false, applicationId: null });
+              } catch (err) {
+                toast.error(err instanceof Error ? err.message : '거절 처리 중 오류가 발생했습니다.');
+              }
+            }}
+            onCancel={() => setRejectionModal({ open: false, applicationId: null })}
+          />
+        </Modal>
+      ) : null}
+      {selectedApplication ? (
+        <Modal
+          title="입점 신청 상세보기"
+          onClose={() => setSelectedApplication(null)}
           maxWidthClassName="max-w-[640px]"
           footer={
             <div className="flex items-center justify-center gap-3">
-              <Button variant="outline" className="w-[140px]">
+              <Button
+                variant="outline"
+                className="w-[140px]"
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  setRejectionModal({ open: true, applicationId: selectedApplication.applicationId });
+                }}
+              >
                 입점 거절
               </Button>
-              <Button variant="primary" className="w-[140px]">
+              <Button
+                variant="primary"
+                className="w-[140px]"
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  approveSingle(selectedApplication.applicationId);
+                }}
+              >
                 입점 승인
               </Button>
             </div>
@@ -260,72 +355,25 @@ export default function ApprovalsPage() {
         >
           <div className="flex flex-col gap-8">
             <div className="flex items-center gap-6">
-              <DefaultProfile className="h-24 w-24 translate-y-2" aria-hidden />
+              <DefaultProfile className="h-24 w-24" aria-hidden />
               <div>
                 <p className="text-xl font-semibold text-[var(--color-gray-900)]">
-                  {selectedApplicant.name}
+                  {selectedApplication.artistName}
                 </p>
                 <p className="mt-2 text-sm text-[var(--color-gray-600)]">
-                  ID : {selectedApplicant.id}
+                  신청 ID : {selectedApplication.applicationId}
                 </p>
               </div>
             </div>
 
             <dl className="divide-y divide-[var(--color-gray-100)] border-y border-[var(--color-gray-100)]">
               {[
-                {
-                  label: '이메일',
-                  value: selectedApplicant.email ?? '-',
-                },
-                {
-                  label: '전화번호',
-                  value: selectedApplicant.phone ?? '-',
-                },
-                {
-                  label: '사업자등록번호',
-                  value: selectedApplicant.businessNumber ?? '-',
-                  link: selectedApplicant.businessDocument
-                    ? {
-                        label: '사업자등록증 사본',
-                        href: selectedApplicant.businessDocument,
-                      }
-                    : undefined,
-                },
-                {
-                  label: '통신판매업 신고번호',
-                  value: selectedApplicant.commerceNumber ?? '-',
-                  link: selectedApplicant.commerceDocument
-                    ? {
-                        label: '신고증 사본',
-                        href: selectedApplicant.commerceDocument,
-                      }
-                    : undefined,
-                },
-                {
-                  label: '사업장소재지',
-                  value: selectedApplicant.address ?? '-',
-                },
-                {
-                  label: '주요 판매 품목',
-                  value:
-                    selectedApplicant.productCategories.length > 0
-                      ? selectedApplicant.productCategories.join(', ')
-                      : '-',
-                },
-                {
-                  label: 'SNS 아이디',
-                  value: selectedApplicant.snsHandle ?? '-',
-                },
-                {
-                  label: '포트폴리오',
-                  value: selectedApplicant.portfolio ? undefined : '-',
-                  link: selectedApplicant.portfolio
-                    ? {
-                        label: selectedApplicant.portfolio.label,
-                        href: selectedApplicant.portfolio.url,
-                      }
-                    : undefined,
-                },
+                { label: '이메일', value: selectedApplication.email },
+                { label: '전화번호', value: selectedApplication.phone },
+                { label: '사업자등록번호', value: selectedApplication.businessNumber },
+                { label: '통신판매업 신고번호', value: selectedApplication.commerceNumber },
+                { label: '펀딩 제목', value: selectedApplication.fundingTitle },
+                { label: '펀딩 내용', value: selectedApplication.fundingSummary },
               ].map((item) => (
                 <div
                   key={item.label}
@@ -335,27 +383,90 @@ export default function ApprovalsPage() {
                     {item.label}
                   </dt>
                   <dd className="flex flex-wrap items-center gap-3 text-[var(--color-gray-700)]">
-                    {item.value !== undefined && item.value !== '' ? (
-                      <span>{item.value}</span>
-                    ) : null}
-                    {item.link ? (
+                    {item.value ?? '-'}
+                  </dd>
+                </div>
+              ))}
+
+              {[
+                { label: '사업자등록증 사본', url: selectedApplication.businessDocument },
+                { label: '통신판매업 신고증 사본', url: selectedApplication.commerceDocument },
+              ].map(({ label, url }) =>
+                url ? (
+                  <div
+                    key={label}
+                    className="grid grid-cols-[140px_1fr] items-center gap-4 py-4 text-sm"
+                  >
+                    <dt className="font-semibold text-[var(--color-gray-800)]">{label}</dt>
+                    <dd>
                       <Link
-                        href={item.link.href}
+                        href={url}
                         className="text-primary underline"
                         target="_blank"
                         rel="noreferrer"
                       >
-                        {item.link.label}
+                        다운로드
                       </Link>
-                    ) : null}
-                    {item.value === undefined && !item.link ? <span>-</span> : null}
-                  </dd>
-                </div>
-              ))}
+                    </dd>
+                  </div>
+                ) : null,
+              )}
             </dl>
           </div>
         </Modal>
       ) : null}
     </>
+  );
+}
+
+
+function RejectForm({ onSubmit, onCancel }: { onSubmit: (reason: string) => Promise<void> | void; onCancel: () => void }) {
+  const [reason, setReason] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const trimmed = reason.trim();
+    if (!trimmed) {
+      setError('거절 사유를 입력해 주세요.');
+      return;
+    }
+    setError(null);
+    try {
+      setSubmitting(true);
+      await onSubmit(trimmed);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '거절 처리에 실패했습니다.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+      <label className="flex flex-col gap-2 text-sm text-[var(--color-gray-700)]">
+        <span className="font-medium text-[var(--color-gray-900)]">거절 사유</span>
+        <textarea
+          value={reason}
+          onChange={(event) => setReason(event.target.value)}
+          rows={4}
+          className="w-full rounded-lg border border-[var(--color-gray-200)] px-3 py-2 outline-none focus:border-[var(--color-primary)]"
+          placeholder="거절 사유를 입력해 주세요"
+          required
+        />
+      </label>
+
+      {error ? <p className="text-sm text-rose-600">{error}</p> : null}
+
+      <div className="flex justify-end gap-2">
+        <Button type="button" variant="outline" onClick={onCancel} disabled={submitting}>
+          취소
+        </Button>
+        <Button type="submit" disabled={submitting}>
+          {submitting ? '처리 중…' : '거절하기'}
+        </Button>
+      </div>
+    </form>
   );
 }

@@ -17,6 +17,21 @@ export type ArtistApplicationSummary = {
   appliedAt?: string;
 };
 
+export type ArtistApplication = {
+  applicationId: number;
+  applicantId: string;
+  artistName: string;
+  fundingTitle: string;
+  fundingSummary: string;
+  email: string;
+  phone: string;
+  businessNumber?: string;
+  businessDocument?: string;
+  commerceNumber?: string;
+  commerceDocument?: string;
+  appliedAt: string;
+};
+
 export type ArtistApplicationsResponse = {
   resultCode?: string;
   msg?: string;
@@ -78,4 +93,27 @@ export async function fetchArtistApplications(
   }
 
   return data.content;
+}
+
+export function normalizeArtistApplication(summary: ArtistApplicationSummary): ArtistApplication {
+  const resolve = (value: unknown, fallback = '-') =>
+    typeof value === 'string' && value.trim().length > 0 ? value.trim() : fallback;
+
+  const applicationId = Number(summary.applicationId);
+  const applicantId = resolve(summary.applicantId, `application-${applicationId}`);
+
+  return {
+    applicationId: Number.isFinite(applicationId) ? applicationId : 0,
+    applicantId,
+    artistName: resolve(summary.artistName, applicantId),
+    fundingTitle: resolve(summary.fundingTitle, '제목 미상'),
+    fundingSummary: resolve(summary.fundingSummary),
+    email: resolve(summary.email),
+    phone: resolve(summary.phone),
+    businessNumber: resolve(summary.businessNumber, undefined),
+    businessDocument: resolve(summary.businessDocument, undefined),
+    commerceNumber: resolve(summary.commerceNumber, undefined),
+    commerceDocument: resolve(summary.commerceDocument, undefined),
+    appliedAt: resolve(summary.appliedAt, new Date().toISOString().slice(0, 10)),
+  };
 }

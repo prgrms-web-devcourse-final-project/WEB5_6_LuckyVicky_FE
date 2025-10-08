@@ -12,7 +12,7 @@ import Modal from '@/components/Modal';
 import DefaultProfile from '@/assets/icon/default_profile.svg';
 import { useToast } from '@/components/ToastProvider';
 import { approveFundingApplication } from '@/services/adminFundingApproval';
-import { fetchArtistApplications } from '@/services/adminArtistApplications';
+import { fetchArtistApplications, normalizeArtistApplication } from '@/services/adminArtistApplications';
 import { useAuthStore } from '@/stores/authStore';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 
@@ -46,44 +46,6 @@ const columns: AdminTableColumn<TableRow>[] = [
   { key: 'createdAt', header: '신청일자', align: 'center', sortable: true },
   { key: 'detail', header: '상세보기', align: 'center' },
 ];
-
-function mapSummaryToApplicant(summary: unknown): FundingApplicant | null {
-  if (!summary || typeof summary !== 'object') {
-    return null;
-  }
-
-  const record = summary as Record<string, unknown>;
-  const rawApplicationId = record.applicationId;
-  const applicationId = typeof rawApplicationId === 'number'
-    ? rawApplicationId
-    : Number(rawApplicationId);
-
-  if (!Number.isFinite(applicationId)) {
-    return null;
-  }
-
-  const resolveString = (value: unknown): string | undefined =>
-    typeof value === 'string' && value.trim().length > 0 ? value.trim() : undefined;
-
-  const id = resolveString(record.applicantId) ?? `application-${applicationId}`;
-  const name = resolveString(record.artistName) ?? id;
-  const fundingTitle = resolveString(record.fundingTitle) ?? '제목 미상';
-
-  return {
-    applicationId,
-    id,
-    name,
-    fundingTitle,
-    fundingSummary: resolveString(record.fundingSummary) ?? '-',
-    email: resolveString(record.email) ?? '-',
-    phone: resolveString(record.phone) ?? '-',
-    businessNumber: resolveString(record.businessNumber),
-    businessDocument: resolveString(record.businessDocument),
-    commerceNumber: resolveString(record.commerceNumber),
-    commerceDocument: resolveString(record.commerceDocument),
-    appliedAt: resolveString(record.appliedAt) ?? new Date().toISOString().slice(0, 10),
-  };
-}
 
 export default function ApproveFundingPage() {
   useAuthGuard({ allowedRoles: ['ADMIN'], redirectTo: '/admin/login' });
@@ -142,9 +104,23 @@ export default function ApproveFundingPage() {
         );
 
         if (!active) return;
-        const normalized = summaries
-          .map((summary) => mapSummaryToApplicant(summary))
-          .filter((value): value is FundingApplicant => Boolean(value));
+        const normalized = summaries.map((summary) => {
+          const base = normalizeArtistApplication(summary);
+          return {
+            applicationId: base.applicationId,
+            id: base.applicantId,
+            name: base.artistName,
+            fundingTitle: base.fundingTitle,
+            fundingSummary: base.fundingSummary,
+            email: base.email,
+            phone: base.phone,
+            businessNumber: base.businessNumber,
+            businessDocument: base.businessDocument,
+            commerceNumber: base.commerceNumber,
+            commerceDocument: base.commerceDocument,
+            appliedAt: base.appliedAt,
+          } as FundingApplicant;
+        });
         setApplicantList(normalized);
       } catch (error) {
         if (!active) return;

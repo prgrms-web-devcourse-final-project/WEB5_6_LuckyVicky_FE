@@ -1,6 +1,6 @@
 const API_BASE = (process.env.NEXT_PUBLIC_API_BASE_URL ?? '').replace(/\/+$/, '');
 
-export type AdminFundingAdminFundingApprovalResponse = {
+export type AdminFundingApprovalResponse = {
   resultCode?: string;
   msg?: string;
   data?: unknown;
@@ -43,3 +43,48 @@ export async function approveFundingApplication(
   return payload;
 }
 
+
+
+export async function rejectFundingApplication(
+  applicationId: string | number,
+  rejectionReason: string,
+  options?: { accessToken?: string },
+): Promise<AdminFundingApprovalResponse> {
+  if (!applicationId && applicationId !== 0) {
+    throw new Error('거절할 신청 ID가 없습니다.');
+  }
+
+  const reason = rejectionReason.trim();
+  if (reason.length === 0) {
+    throw new Error('거절 사유를 입력해 주세요.');
+  }
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  if (options?.accessToken) {
+    headers.Authorization = `Bearer ${options.accessToken}`;
+  }
+
+  const response = await fetch(
+    `${API_BASE}/api/dashboard/admin/artist-applications/${applicationId}/reject`,
+    {
+      method: 'POST',
+      credentials: 'include',
+      headers,
+      body: JSON.stringify({ rejectionReason: reason }),
+    },
+  );
+
+  const payload: AdminFundingApprovalResponse & { message?: string } = await response
+    .json()
+    .catch(() => ({} as AdminFundingApprovalResponse & { message?: string }));
+
+  if (!response.ok) {
+    const message = payload.msg || payload.message || '입점 거절에 실패했습니다.';
+    throw new Error(message);
+  }
+
+  return payload;
+}
