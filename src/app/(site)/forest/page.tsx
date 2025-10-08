@@ -1,7 +1,9 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { useMemo } from 'react';
+import { forestCreators } from '@/data/forestCreators';
 
 type Creator = { id: string; name: string };
 
@@ -23,20 +25,10 @@ const treeImages = [
   '/tree5.png','/tree6.png','/tree7.png','/tree8.png',
 ];
 
-const sampleCreators: Creator[] = [
-  { id: 'creator-1', name: '작가1' },
-  { id: 'creator-2', name: '작가2' },
-  { id: 'creator-3', name: '작가3' },
-  { id: 'creator-4', name: '작가4' },
-  { id: 'creator-5', name: '작가5' },
-  { id: 'creator-6', name: '작가6' },
-  { id: 'creator-7', name: '작가7' },
-  { id: 'creator-8', name: '작가8' },
-  { id: 'creator-9', name: '작가9' },
-  { id: 'creator-10', name: '작가10' },
-  { id: 'creator-11', name: '작가11' },
-  { id: 'creator-12', name: '작가12' },
-];
+const sampleCreators: Creator[] = forestCreators.map((creator) => ({
+  id: creator.id,
+  name: creator.name,
+}));
 
 // ------------------- 노이즈 유틸 -------------------
 function hash2D(ix: number, iy: number) {
@@ -305,9 +297,10 @@ export default function ForestPage() {
       >
         <div className="relative flex-1">
           {treeMarkers.map((m) => (
-            <button
+            <Link
               key={m.creator.id}
-              type="button"
+              href={`/forest/${m.creator.id}`}
+              aria-label={`${m.creator.name} 작가 상세 보기`}
               className="group absolute flex -translate-x-1/2 -translate-y-full flex-col items-center gap-2 text-center"
               style={{ top: `${m.top}px`, left: `${m.left}px` }}
             >
@@ -323,11 +316,10 @@ export default function ForestPage() {
                   priority
                 />
               </div>
-              <span className="z-10 rounded-full bg-white/80 px-4 py-1 text-sm font-medium text-[var(--color-gray-800)] shadow-sm transition-colors group-hover:bg-white
-              whitespace-nowrap">
+              <span className="z-10 rounded-full bg-white/80 px-4 py-1 text-sm font-medium text-[var(--color-gray-800)] shadow-sm transition-colors group-hover:bg-white whitespace-nowrap">
                 {m.creator.name}
               </span>
-            </button>
+            </Link>
           ))}
         </div>
       </div>
