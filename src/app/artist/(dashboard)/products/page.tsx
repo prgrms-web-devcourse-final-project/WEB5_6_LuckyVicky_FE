@@ -4,7 +4,8 @@ import { useState, type Key } from 'react';
 import AdminDataTable, { AdminTableColumn, SortDirection } from '@/components/admin/AdminDataTable';
 import Button from '@/components/Button';
 import SearchIcon from '@/assets/icon/search.svg';
-import ProductCreateModal, { ProductCreatePayload } from '@/components/artist/ProductCreateModal';
+import ProductCreateModal from '@/components/artist/ProductCreateModal';
+import { ProductCreatePayload } from '@/types/product';
 
 type ProductRow = {
   id: string;
@@ -26,7 +27,7 @@ const initialRows: ProductRow[] = [
   { id: '0123157', name: '상품명입니다', author: '작가명입니다', status: '판매중', createdAt: '2025-09-30' },
 ];
 
-// 유틸: 다음 상품번호(7자리 zero-pad)
+// 다음 상품번호(7자리 zero-pad)
 function nextId(rows: ProductRow[]) {
   const max = rows.reduce((m, r) => {
     const n = parseInt(r.id, 10);
@@ -35,12 +36,12 @@ function nextId(rows: ProductRow[]) {
   return String(max + 1).padStart(7, '0');
 }
 
-// 유틸: YYYY-MM-DD (로컬)
+// YYYY-MM-DD (로컬)
 function todayYYYYMMDD() {
-  return new Date().toLocaleDateString('en-CA'); // e.g., 2025-10-05
+  return new Date().toLocaleDateString('en-CA'); // 2025-10-05
 }
 
-// 유틸: 판매상태 간단 판정
+// 판매상태
 function resolveStatus(payload: ProductCreatePayload): string {
   if (!payload.plannedSale) return '판매중';
   const now = Date.now();
@@ -53,14 +54,14 @@ function resolveStatus(payload: ProductCreatePayload): string {
 }
 
 export default function ProductsPage() {
-  const [rows, setRows] = useState<ProductRow[]>(initialRows);        // <-- state로 관리
+  const [rows, setRows] = useState<ProductRow[]>(initialRows);
   const [sortKey, setSortKey] = useState<keyof ProductRow | undefined>(undefined);
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // 모달
   const [openModal, setOpenModal] = useState(false);
+
 
   const updateSort = (key: string, direction: SortDirection) => {
     setSortKey(key as keyof ProductRow);
@@ -71,20 +72,22 @@ export default function ProductsPage() {
     setSelectedIds(keys.map((key) => String(key)));
   };
 
-  // 제출 시 테이블에 한 줄 추가
-  const handleCreate = async (payload: ProductCreatePayload) => {
+  // API 성공 콜백: 행 추가
+  const handleCreated = ({ productUuid, payload }: { productUuid: string; payload: ProductCreatePayload }) => {
     const newRow: ProductRow = {
+      // 테이블 id는 7자리
       id: nextId(rows),
       name: payload.title,
       author: payload.brand || payload.bizInfo?.companyName || '작가',
       status: resolveStatus(payload),
       createdAt: todayYYYYMMDD(),
     };
-    setRows((prev) => [newRow, ...prev]); // 최신이 위로 오게 prepend
-    // 실제 API 호출이 있다면 성공 후 setRows, 실패 시 롤백/알림 처리
+    setRows((prev) => [newRow, ...prev]);
   };
 
-  // 사업자 정보 불러오기 (옵션)
+  
+
+  // 사업자 정보 불러오기 
   const loadBizFromProfile = async () => {
     return {
       companyName: '모리모리 스튜디오',
@@ -106,7 +109,7 @@ export default function ProductsPage() {
 
       <AdminDataTable
         columns={columns}
-        rows={rows}                             // <-- state 사용
+        rows={rows}
         rowKey={(row) => row.id}
         sortKey={sortKey}
         sortDirection={sortDirection}
@@ -143,12 +146,12 @@ export default function ProductsPage() {
         </form>
       </div>
 
-      {/* 분리된 모달 컴포넌트 */}
+
       <ProductCreateModal
         open={openModal}
         onClose={() => setOpenModal(false)}
-        onSubmit={handleCreate}
-        initialBrand="내 브랜드"   // 로그인한 작가 브랜드로 대체
+        onCreated={handleCreated}
+        initialBrand="내 브랜드"   // 로그인한 작가 브랜드
         onLoadBizFromProfile={loadBizFromProfile}
       />
     </>
