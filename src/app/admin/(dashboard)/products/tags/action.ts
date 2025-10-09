@@ -13,9 +13,9 @@ export async function createTagAction(formData: FormData) {
     revalidatePath('/admin/(dashboard)/products/tags');
 
     return { success: true, data: newTag };
-  } catch (e: any) {
-    return { success: false, message: e.message };
-  }
+  } catch (e: unknown) {
+  return { success: false, message: '알 수 없는 오류가 발생했습니다.' };
+}
 }
 
 // 태그 수정
