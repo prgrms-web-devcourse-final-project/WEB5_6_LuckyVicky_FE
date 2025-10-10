@@ -75,9 +75,12 @@ export type LoginResponse = {
     refreshToken: string;
     userId: number;
     email: string;
+    nickname?: string;
+    phone?: string;
     selectedRole: 'USER' | 'ARTIST' | 'ADMIN';
     availableRoles: string[];
     accessTokenExpiresIn: number;
+    needsAdditionalInfo?: boolean;
   };
 };
 
@@ -116,6 +119,9 @@ export type SocialSignupResponse = {
     selectedRole: 'USER' | 'ARTIST' | 'ADMIN';
     availableRoles?: string[];
     accessTokenExpiresIn?: number;
+    needsAdditionalInfo?: boolean;
+    nickname?: string;
+    phone?: string;
   };
 };
 
@@ -139,6 +145,100 @@ export async function completeSocialSignup(payload: SocialSignupPayload): Promis
   return data;
 }
 
+export async function fetchAuthStatus(): Promise<AuthStatusResponse | null> {
+  const baseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL ?? '').replace(/\/+$/, '');
+
+  try {
+    const res = await fetch(`${baseUrl}/api/auth/me`, {
+      method: 'GET',
+      credentials: 'include',
+      cache: 'no-store',
+    });
+
+    if (res.status === 401 || res.status === 403 || res.status === 204) {
+      return null;
+    }
+
+    const payload = await res.json().catch(() => null);
+
+    if (!res.ok) {
+      const message =
+        (payload && typeof payload === 'object' && 'message' in payload && typeof (payload as { message?: string }).message === 'string'
+          ? (payload as { message: string }).message
+          : '인증 정보를 불러오지 못했습니다.');
+      throw new Error(message);
+    }
+
+    if (!payload || typeof payload !== 'object') {
+      return null;
+    }
+
+    const data =
+      'data' in payload && payload.data && typeof payload.data === 'object'
+        ? (payload as { data: AuthStatusResponse }).data
+        : (payload as AuthStatusResponse);
+
+    return data ?? null;
+  } catch (error) {
+    console.error('fetchAuthStatus error', error);
+    throw new Error('인증 정보를 불러오지 못했습니다.');
+  }
+}
+
+export async function fetchUserProfile(): Promise<UserProfileResponse | null> {
+  const baseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL ?? '').replace(/\/+$/, '');
+
+  try {
+    const res = await fetch(`${baseUrl}/api/users/me`, {
+      method: 'GET',
+      credentials: 'include',
+      cache: 'no-store',
+    });
+
+    if (res.status === 401 || res.status === 403 || res.status === 204) {
+      return null;
+    }
+
+    const payload = await res.json().catch(() => null);
+
+    if (!res.ok) {
+      const message =
+        (payload && typeof payload === 'object' && 'message' in payload && typeof (payload as { message?: string }).message === 'string'
+          ? (payload as { message: string }).message
+          : '사용자 정보를 불러오지 못했습니다.');
+      throw new Error(message);
+    }
+
+    if (!payload || typeof payload !== 'object') return null;
+
+    const data =
+      'data' in payload && payload.data && typeof payload.data === 'object'
+        ? (payload as { data: UserProfileResponse }).data
+        : (payload as UserProfileResponse);
+
+    return data ?? null;
+  } catch (error) {
+    console.error('fetchUserProfile error', error);
+    throw new Error('사용자 정보를 불러오지 못했습니다.');
+  }
+}
+
+export async function updateOAuthProfile(payload: { phone: string }): Promise<void> {
+  const baseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL ?? '').replace(/\/+$/, '');
+
+  const res = await fetch(`${baseUrl}/api/users/me/oauth-info`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const message = await res.text().catch(() => '추가 정보 저장에 실패했습니다.');
+    throw new Error(message);
+  }
+}
+
 export type SessionResponse = {
   selectedRole?: string | null;
   role?: string | null;
@@ -147,6 +247,32 @@ export type SessionResponse = {
   authorities?: unknown;
   accessToken?: string;
   refreshToken?: string;
+  needsAdditionalInfo?: boolean;
+  profileCompleted?: boolean;
+  email?: string | null;
+  nickname?: string | null;
+  phone?: string | null;
+  [key: string]: unknown;
+};
+
+export type AuthStatusResponse = {
+  role?: string | null;
+  selectedRole?: string | null;
+  availableRoles?: unknown;
+  accessToken?: string | null;
+  refreshToken?: string | null;
+  needsAdditionalInfo?: boolean;
+  email?: string | null;
+  nickname?: string | null;
+  phone?: string | null;
+  [key: string]: unknown;
+};
+
+export type UserProfileResponse = {
+  email?: string | null;
+  name?: string | null;
+  nickname?: string | null;
+  phone?: string | null;
   [key: string]: unknown;
 };
 

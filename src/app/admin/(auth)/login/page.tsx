@@ -37,10 +37,20 @@ export default function AdminLoginCard() {
                   if (data) {
                     setAuth({
                       role: data.selectedRole,
-                      availableRoles: data.availableRoles,
+                      availableRoles: data.availableRoles ?? [],
                       accessToken: data.accessToken,
                       refreshToken: data.refreshToken,
+                      needsAdditionalInfo: Boolean(data.needsAdditionalInfo),
+                      userProfile: {
+                        email: data.email,
+                        nickname: data.nickname ?? undefined,
+                        phone: data.phone ?? undefined,
+                      },
                     });
+                    if (data.needsAdditionalInfo) {
+                      toast.info('추가 정보 입력이 필요합니다.', { duration: 2000 });
+                      return;
+                    }
                   }
                   toast.success('로그인되었습니다!', { duration: 2000 });
                   router.push('/admin/main');

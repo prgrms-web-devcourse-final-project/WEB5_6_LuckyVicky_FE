@@ -1,4 +1,5 @@
 import ToastProvider from '@/components/ToastProvider';
+import SocialRegistrationWatcher from '@/components/auth/SocialRegistrationWatcher';
 import '../style/globals.css';
 
 export default function RootLayout({
@@ -9,7 +10,10 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body>
-        <ToastProvider>{children}</ToastProvider>
+        <ToastProvider>
+          <SocialRegistrationWatcher />
+          {children}
+        </ToastProvider>
       </body>
     </html>
   );

@@ -18,7 +18,7 @@ const phoneInputClass =
   'w-full rounded border border-gray-200 px-3 py-2 text-center outline-none transition-colors duration-150 focus:border-[var(--color-primary)]';
 
 const sectionClass =
-  'flex w-full flex-col gap-4 rounded-2xl  bg-white pt-0 py-10 ';
+  'flex w-full flex-col gap-4 rounded-2xl ';
 
 export type SocialRegistrationValues = {
   email: string;
@@ -28,9 +28,11 @@ export type SocialRegistrationValues = {
 
 type SocialRegistrationModalProps = {
   open: boolean;
-  defaultValues?: Partial<SocialRegistrationValues>;
+  defaultValues?: Partial<SocialRegistrationValues> & { name?: string };
   onClose: () => void;
   onSubmit: (values: SocialRegistrationValues) => Promise<void>;
+  disableEmail?: boolean;
+  disableNickname?: boolean;
 };
 
 function extractPhoneParts(value?: string) {
@@ -47,6 +49,8 @@ export default function SocialRegistrationModal({
   defaultValues,
   onClose,
   onSubmit,
+  disableEmail = false,
+  disableNickname = false,
 }: SocialRegistrationModalProps) {
   const toast = useToast();
   const [email, setEmail] = useState(defaultValues?.email ?? '');
@@ -54,8 +58,8 @@ export default function SocialRegistrationModal({
   const [p1, setP1] = useState('');
   const [p2, setP2] = useState('');
   const [p3, setP3] = useState('');
-  const [emailChecked, setEmailChecked] = useState(false);
-  const [nicknameChecked, setNicknameChecked] = useState(false);
+  const [emailChecked, setEmailChecked] = useState(disableEmail);
+  const [nicknameChecked, setNicknameChecked] = useState(disableNickname);
   const [phoneChecked, setPhoneChecked] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -66,14 +70,14 @@ export default function SocialRegistrationModal({
   useEffect(() => {
     const [fp1, fp2, fp3] = extractPhoneParts(defaultValues?.phone);
     setEmail(defaultValues?.email ?? '');
-    setNickname(defaultValues?.nickname ?? '');
+    setNickname(defaultValues?.nickname ?? defaultValues?.name ?? '');
     setP1(fp1);
     setP2(fp2);
     setP3(fp3);
-    setEmailChecked(false);
-    setNicknameChecked(false);
+    setEmailChecked(disableEmail);
+    setNicknameChecked(disableNickname);
     setPhoneChecked(false);
-  }, [defaultValues, open]);
+  }, [defaultValues, disableEmail, disableNickname, open]);
 
   const nicknameTrim = nickname.trim();
   const isNicknameLenOk = nicknameTrim.length >= 2 && nicknameTrim.length <= 10;
@@ -81,6 +85,10 @@ export default function SocialRegistrationModal({
   const phoneDigits = useMemo(() => `${p1}${p2}${p3}`, [p1, p2, p3]);
 
   const handleCheckEmail = async () => {
+    if (disableEmail) {
+      setEmailChecked(true);
+      return;
+    }
     if (!isValidEmail(email)) {
       toast.error('올바른 이메일 형식이 아닙니다.');
       return;
@@ -101,6 +109,10 @@ export default function SocialRegistrationModal({
   };
 
   const handleCheckNickname = async () => {
+    if (disableNickname) {
+      setNicknameChecked(true);
+      return;
+    }
     if (!isNicknameLenOk) {
       toast.error('닉네임은 2자 이상 10자 이하여야 합니다.');
       return;
@@ -140,14 +152,15 @@ export default function SocialRegistrationModal({
     }
   };
 
-  const isEmailValid = isValidEmail(email);
+  const isEmailValid = disableEmail || isValidEmail(email);
+  const isNicknameValid = disableNickname || isNicknameLenOk;
   const isPhoneValid = isValidPhoneKRParts(p1, p2, p3);
   const canSubmit =
     isEmailValid &&
-    isNicknameLenOk &&
+    isNicknameValid &&
     isPhoneValid &&
-    emailChecked &&
-    nicknameChecked &&
+    (disableEmail || emailChecked) &&
+    (disableNickname || nicknameChecked) &&
     phoneChecked &&
     !submitting;
 
@@ -179,13 +192,12 @@ export default function SocialRegistrationModal({
       title="추가 정보 입력"
       onClose={submitting ? () => undefined : onClose}
       showFooter={false}
-      maxWidthClassName="max-w-[800px]"
+      maxWidthClassName="max-w-[620px]"
       contentClassName="bg-transparent"
       className="mb-4"
     >
       <form className="flex justify-center" onSubmit={handleSubmit}>
         <div className={sectionClass}>
-
           <div className="flex w-full flex-col gap-2">
             <label className="flex flex-col gap-2 text-sm text-[var(--color-gray-700)]">
               <span className="font-medium text-[var(--color-gray-900)]">이메일</span>
@@ -195,15 +207,20 @@ export default function SocialRegistrationModal({
                   value={email}
                   onChange={(event) => {
                     setEmail(event.target.value);
-                    setEmailChecked(false);
+                    if (!disableEmail) {
+                      setEmailChecked(false);
+                    }
                   }}
                   className={inputClass}
                   placeholder="이메일"
+                  disabled={disableEmail}
                   required
                 />
-                <Button className="shrink-0" type="button" variant="outline" onClick={handleCheckEmail}>
-                  중복확인
-                </Button>
+                {disableEmail ? null : (
+                  <Button className="shrink-0" type="button" variant="outline" onClick={handleCheckEmail}>
+                    중복확인
+                  </Button>
+                )}
               </div>
             </label>
 
@@ -215,15 +232,20 @@ export default function SocialRegistrationModal({
                   value={nickname}
                   onChange={(event) => {
                     setNickname(event.target.value);
-                    setNicknameChecked(false);
+                    if (!disableNickname) {
+                      setNicknameChecked(false);
+                    }
                   }}
                   className={inputClass}
                   placeholder="닉네임"
+                  disabled={disableNickname}
                   required
                 />
-                <Button className="shrink-0"type="button" variant="outline" onClick={handleCheckNickname}>
-                  중복확인
-                </Button>
+                {disableNickname ? null : (
+                  <Button className="shrink-0" type="button" variant="outline" onClick={handleCheckNickname}>
+                    중복확인
+                  </Button>
+                )}
               </div>
               <p className="text-xs text-[var(--color-gray-500)]">닉네임은 2자 이상 10자 이하로 입력해 주세요.</p>
             </label>
