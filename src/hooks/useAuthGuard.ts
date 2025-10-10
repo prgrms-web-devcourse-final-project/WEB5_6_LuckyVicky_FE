@@ -11,12 +11,21 @@ type Options = {
 
 export function useAuthGuard({ allowedRoles, redirectTo = '/login' }: Options) {
   const router = useRouter();
-  const { role } = useAuthStore();
+  const role = useAuthStore((state) => state.role);
+  const isHydrated = useAuthStore((state) => state.isHydrated);
+  const hydrate = useAuthStore((state) => state.hydrate);
+
+  useEffect(() => {
+    if (!isHydrated) {
+      void hydrate();
+    }
+  }, [hydrate, isHydrated]);
 
   useEffect(() => {
     if (!allowedRoles) return;
+    if (!isHydrated) return;
     if (!role || !allowedRoles.includes(role)) {
       router.replace(redirectTo);
     }
-  }, [allowedRoles, role, router, redirectTo]);
+  }, [allowedRoles, role, router, redirectTo, isHydrated]);
 }

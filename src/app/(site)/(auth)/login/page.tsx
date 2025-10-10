@@ -9,16 +9,20 @@ import { login } from '@/services/auth';
 import googleIcon from '@/assets/icon/google.png';
 import NaverIcon from '@/assets/icon/naver.svg';
 import kakaoIcon from '@/assets/icon/kakao.png';
-import { useAuthStore, type Role } from '@/stores/authStore';
+import { useAuthStore } from '@/stores/authStore';
 
 const socialButtonClass =
   'flex w-full items-center justify-center gap-3 rounded-lg border border-gray-200 px-4 py-2 transition-colors duration-150 hover:border-[var(--color-primary)]';
 const socialIconWrapper = 'flex h-6 w-6 items-center justify-center';
 
+const API_BASE_URL = (
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8080'
+).replace(/\/+$/, '');
+
 const SOCIAL_LOGIN_URLS = {
-  google: 'http://localhost:8080/oauth2/authorization/google',
-  kakao: 'http://localhost:8080/oauth2/authorization/kakao',
-  naver: 'http://localhost:8080/oauth2/authorization/naver',
+  google: `${API_BASE_URL}/oauth2/authorization/google`,
+  kakao: `${API_BASE_URL}/oauth2/authorization/kakao`,
+  naver: `${API_BASE_URL}/oauth2/authorization/naver`,
 } as const;
 
 type SocialProvider = keyof typeof SOCIAL_LOGIN_URLS;
@@ -89,8 +93,8 @@ export default function LoginCard() {
                   const data = response.data;
                   if (data) {
                     setAuth({
-                      role: data.selectedRole ?? null,
-                      availableRoles: (data.availableRoles ?? []) as Role[],
+                      role: data.selectedRole,
+                      availableRoles: data.availableRoles,
                       accessToken: data.accessToken,
                       refreshToken: data.refreshToken,
                     });

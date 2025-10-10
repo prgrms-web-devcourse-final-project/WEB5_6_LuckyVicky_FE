@@ -35,13 +35,20 @@ const isNotificationItem = (item: { href: string; label: string }) =>
 export default function Header() {
   const router = useRouter();
   const [keyword, setKeyword] = useState('');
-    const role = useAuthStore((state) => state.role);
-    const reset = useAuthStore((state) => state.reset);
+  const role = useAuthStore((state) => state.role);
+  const hydrate = useAuthStore((state) => state.hydrate);
+  const isHydrated = useAuthStore((state) => state.isHydrated);
 
   const pathname = usePathname();
   const [notifOpen, setNotifOpen] = useState(false);
 
   const { logout } = useLogout();
+
+  useEffect(() => {
+    if (!isHydrated) {
+      void hydrate();
+    }
+  }, [hydrate, isHydrated]);
   
   // 라우트 바뀔 때마다 검색창 초기화
   useEffect(() => {
