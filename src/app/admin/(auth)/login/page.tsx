@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useToast } from '@/components/ToastProvider';
 import { useRouter } from 'next/navigation';
 import { login } from '@/services/auth';
+import { useAuthStore } from '@/stores/authStore';
 
 
 export default function AdminLoginCard() {
@@ -13,6 +14,7 @@ export default function AdminLoginCard() {
   const [submitting, setSubmitting] = useState(false);
   const toast = useToast();
   const router = useRouter();
+  const setAuth = useAuthStore((state) => state.setAuth);
 
  
 
@@ -30,11 +32,18 @@ export default function AdminLoginCard() {
                 try {
                   setSubmitting(true);
                   const selectedRole = 'ADMIN';
-                  await login({ email, password, selectedRole });
-                  toast.success('로그인되었습니다!', {
-                    duration: 2000,
-                  });
-                  router.push('/');
+                  const response = await login({ email, password, selectedRole });
+                  const data = response.data;
+                  if (data) {
+                    setAuth({
+                      role: data.selectedRole,
+                      availableRoles: data.availableRoles,
+                      accessToken: data.accessToken,
+                      refreshToken: data.refreshToken,
+                    });
+                  }
+                  toast.success('로그인되었습니다!', { duration: 2000 });
+                  router.push('/admin/main');
                 } catch (err) {
                   const msg = err instanceof Error ? err.message : '로그인 실패';
                   toast.error(msg);
