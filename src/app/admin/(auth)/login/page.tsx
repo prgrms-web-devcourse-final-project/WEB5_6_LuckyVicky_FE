@@ -42,10 +42,8 @@ export default function AdminLoginCard() {
                       refreshToken: data.refreshToken,
                     });
                   }
-                  toast.success('로그인되었습니다!', {
-                    duration: 2000,
-                  });
-                  router.push('/');
+                  toast.success('로그인되었습니다!', { duration: 2000 });
+                  router.push('/admin/main');
                 } catch (err) {
                   const msg = err instanceof Error ? err.message : '로그인 실패';
                   toast.error(msg);
