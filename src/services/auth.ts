@@ -98,6 +98,47 @@ export async function login(payload: LoginPayload): Promise<LoginResponse> {
   return data;
 }
 
+
+export type SocialSignupPayload = {
+  email: string;
+  nickname: string;
+  phone: string;
+};
+
+export type SocialSignupResponse = {
+  resultCode?: string;
+  msg?: string;
+  data?: {
+    accessToken: string;
+    refreshToken: string;
+    userId?: number;
+    email?: string;
+    selectedRole: 'USER' | 'ARTIST' | 'ADMIN';
+    availableRoles?: string[];
+    accessTokenExpiresIn?: number;
+  };
+};
+
+export async function completeSocialSignup(payload: SocialSignupPayload): Promise<SocialSignupResponse> {
+  const baseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL ?? '').replace(/\/+$/, '');
+  const res = await fetch(`${baseUrl}/api/auth/social/complete`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(payload),
+  });
+
+  const data: SocialSignupResponse & { message?: string } = await res
+    .json()
+    .catch(() => ({} as SocialSignupResponse & { message?: string }));
+
+  if (!res.ok) {
+    throw new Error(data.msg || data.message || '추가 정보 저장에 실패했습니다.');
+  }
+
+  return data;
+}
+
 export type SessionResponse = {
   selectedRole?: string | null;
   role?: string | null;

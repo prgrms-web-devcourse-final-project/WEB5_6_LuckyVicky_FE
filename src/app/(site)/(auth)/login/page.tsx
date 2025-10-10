@@ -2,14 +2,16 @@
 import Button from '@/components/Button';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useToast } from '@/components/ToastProvider';
-import { useRouter } from 'next/navigation';
-import { login } from '@/services/auth';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { completeSocialSignup, login } from '@/services/auth';
+import { onlyDigits } from '@/utils/validators';
 import googleIcon from '@/assets/icon/google.png';
 import NaverIcon from '@/assets/icon/naver.svg';
 import kakaoIcon from '@/assets/icon/kakao.png';
 import { useAuthStore } from '@/stores/authStore';
+import SocialRegistrationModal, { type SocialRegistrationValues } from '@/components/auth/SocialRegistrationModal';
 
 const socialButtonClass =
   'flex w-full items-center justify-center gap-3 rounded-lg border border-gray-200 px-4 py-2 transition-colors duration-150 hover:border-[var(--color-primary)]';
@@ -45,6 +47,55 @@ export default function LoginCard() {
   const router = useRouter();
 
   const setAuth = useAuthStore((state) => state.setAuth);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [socialModalOpen, setSocialModalOpen] = useState(false);
+  const [socialDefaults, setSocialDefaults] = useState<Partial<SocialRegistrationValues>>({});
+
+  useEffect(() => {
+    const flag = searchParams.get('socialSignup');
+    if (flag === '1') {
+      const params = new URLSearchParams(searchParams.toString());
+      setSocialDefaults({
+        email: params.get('email') ?? undefined,
+        nickname: params.get('nickname') ?? undefined,
+        phone: params.get('phone') ?? undefined,
+      });
+      setSocialModalOpen(true);
+
+      params.delete('socialSignup');
+      params.delete('email');
+      params.delete('nickname');
+      params.delete('phone');
+
+      const query = params.toString();
+      const next = query ? `${pathname}?${query}` : pathname;
+      router.replace(next, { scroll: false });
+    }
+  }, [pathname, router, searchParams]);
+
+  const handleSocialModalSubmit = useCallback(
+    async ({ email: modalEmail, nickname: modalNickname, phone }: SocialRegistrationValues) => {
+      const phoneDigits = onlyDigits(phone);
+      const response = await completeSocialSignup({
+        email: modalEmail,
+        nickname: modalNickname,
+        phone: phoneDigits,
+      });
+      const data = response.data;
+      if (data) {
+        setAuth({
+          role: data.selectedRole,
+          availableRoles: data.availableRoles ?? [],
+          accessToken: data.accessToken,
+          refreshToken: data.refreshToken,
+        });
+      }
+      toast.success('추가 정보가 저장되었습니다!', { duration: 2000 });
+      router.push('/');
+    },
+    [router, setAuth, toast],
+  );
 
   const baseTab =
     'lg:w-[180px] md:w-[180px] rounded-t-xl px-5 py-3 text-[16px] font-semibold transition-colors duration-150 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]';
@@ -195,6 +246,12 @@ export default function LoginCard() {
           </div>
         </div>
       </div>
+      <SocialRegistrationModal
+        open={socialModalOpen}
+        defaultValues={socialDefaults}
+        onClose={() => setSocialModalOpen(false)}
+        onSubmit={handleSocialModalSubmit}
+      />
     </div>
   );
 }

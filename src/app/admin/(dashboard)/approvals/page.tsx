@@ -198,6 +198,7 @@ export default function ApprovalsPage() {
     } catch (err) {
       const message = err instanceof Error ? err.message : '입점 거절에 실패했습니다.';
       toast.error(message);
+      throw new Error(message);
     }
   }, [accessToken, selectedIds, toast]);
 
@@ -215,6 +216,7 @@ export default function ApprovalsPage() {
     } catch (err) {
       const message = err instanceof Error ? err.message : '입점 거절에 실패했습니다.';
       toast.error(message);
+      throw new Error(message);
     }
   }, [accessToken, toast]);
 
